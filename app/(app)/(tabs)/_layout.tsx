@@ -32,15 +32,6 @@ export default function TabsLayout() {
                 ),
             }}
             />
-            {/* <Tabs.Screen
-            name="log-out"
-            options={{
-                title: 'Log Out',
-                tabBarIcon: ({ color, focused }) => (
-                <TabBarIcon name={focused ? 'log-out' : 'log-out-outline'} color={color} />
-                ),
-            }}
-            /> */}
         </Tabs>
     )
 }

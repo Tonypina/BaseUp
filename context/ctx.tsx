@@ -1,14 +1,17 @@
-import { useContext, createContext, type PropsWithChildren } from 'react';
+import { useContext, createContext, type PropsWithChildren, useState } from 'react';
 import { useStorageState } from '../hooks/useStorageState';
+import axios from 'axios';
 
 const AuthContext = createContext<{
-  signIn: () => void;
-  signOut: () => void;
-  session?: string | null;
+  signIn: (email: string, pass: string) => Promise<boolean>;
+  signOut: (token: string) => void;
+  register: (name: string, email: string, pass: string, c_pass: string) => Promise<boolean>;
+  session?: any | null;
   isLoading: boolean;
 }>({
-  signIn: () => null,
+  signIn: async () => false,
   signOut: () => null,
+  register: async () => false,
   session: null,
   isLoading: false,
 });
@@ -28,16 +31,74 @@ export function useSession() {
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState('session');
 
+  // const [isAuthenticated, setIsAutheticated] = useState(false);
+  let isAuthenticated = false
+
+
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          // Perform sign-in logic here
-          setSession('xxx');
+        signIn: async (email, pass) => {
+
+          await axios({
+            method: 'post',
+            url: process.env.EXPO_PUBLIC_API_URL + 'login',
+            data: {
+              email: email,
+              password: pass,
+            }
+          }).then(async res => {
+                       
+            setSession(JSON.stringify(res.data.data));
+            isAuthenticated = true
+            
+          }).catch(async err => {
+            
+            setSession(null);
+            isAuthenticated = false
+          })
+
+          return isAuthenticated
+          
         },
-        signOut: () => {
+        
+        signOut: async ( token ) => {
+          await axios({
+            method: 'post',
+            url: process.env.EXPO_PUBLIC_API_URL + 'logout',
+            headers: {
+              Authorization: 'Bearer ' + token
+            }
+          })
+          
           setSession(null);
         },
+
+        register: async (name, email, pass, c_pass) => {
+          
+          await axios({
+            method: 'post',
+            url: process.env.EXPO_PUBLIC_API_URL + 'register',
+            data: {
+              name: name,
+              email: email,
+              password: pass,
+              c_password: c_pass,
+            }
+          }).then(async res => {
+            
+            setSession(JSON.stringify(res.data.data));
+            isAuthenticated = true
+
+          }).catch(async err => {
+            
+            setSession(null);
+            isAuthenticated = false            
+          })
+          
+          return isAuthenticated
+        },
+
         session,
         isLoading,
       }}>

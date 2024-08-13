@@ -2,42 +2,36 @@ import { useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSession } from '@/context/ctx';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useStorageState } from '@/hooks/useStorageState';
 
-export default function SignIn() {
-  const { signIn } = useSession();
-  const [username, setUsername] = useState('');
+export default function Register() {
+  const { register } = useSession();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [c_password, setCPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSignIn = async () => {
+  const handleRegister = async () => {
     try {
-      let isAuthenticated = await signIn( username, password )
-      
+      let isAuthenticated = await register( name, email, password, c_password );
+
       if (isAuthenticated) {
 
         router.replace('/');
-
-        setError('');
+        
       } else {
-
-        setError('Las credenciales son erroneas. Vuélvelo a intentar.');
+        
+        setError('Ocurrió un problema. Vuélvelo a intentar.');
       }
       
     } catch (error) {
       
-      setError('Las credenciales son erroneas. Vuélvelo a intentar.');
+      setError('Ocurrió un problema. Vuélvelo a intentar.');
     }
   };
   
-  const handleGoogleSignIn = async () => {
-    
-  }
-  
-  const handleRegister = () => {
-    
-    router.replace('/register');
+  const handleSignIn = () => {
+    router.replace('/sign-in');
   }
 
   return (
@@ -46,15 +40,26 @@ export default function SignIn() {
         fontSize: 60,
         marginBottom: 10,
       }}>
-        Iniciar Sesión
+        Regístrate
       </Text>
       <Text style={{
         fontSize: 17,
         marginBottom: 30,
         color: 'gray'
       }}>
-        Ingresa tus credenciales para entrar
+        Crea una cuenta
       </Text>
+
+      <Text style={{
+        fontSize: 15,
+        marginBottom: 10
+      }}>Nombre</Text>
+      <TextInput
+        style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
+        placeholder="Nombre"
+        value={name}
+        onChangeText={setName}
+      />
 
       <Text style={{
         fontSize: 15,
@@ -63,8 +68,8 @@ export default function SignIn() {
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
         placeholder="Correo electrónico"
-        value={username}
-        onChangeText={setUsername}
+        value={email}
+        onChangeText={setEmail}
       />
 
       <Text style={{
@@ -76,6 +81,18 @@ export default function SignIn() {
         placeholder="Contraseña"
         value={password}
         onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <Text style={{
+        fontSize: 15,
+        marginBottom: 10
+      }}>Confirma contraseña</Text>
+      <TextInput
+        style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
+        placeholder="Confirmacion"
+        value={c_password}
+        onChangeText={setCPassword}
         secureTextEntry
       />
       {error && (
@@ -96,28 +113,14 @@ export default function SignIn() {
             alignItems: 'center',
             width: '100%'
           }}
-          onPress={handleSignIn}
+          onPress={handleRegister}
         >
           <Text
             style={{
               color: 'white',
               fontSize: 17
             }}
-          >Ingresar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            paddingVertical: 10,
-            alignItems: 'center',
-          }}
-          onPress={handleRegister}
-        >
-          <Text
-            style={{
-              color: 'gray',
-              fontSize: 15
-            }}
-          >No tienes cuenta? Regístrate</Text>
+          >Registrarme</Text>
         </TouchableOpacity>
       </View>
 
@@ -131,26 +134,19 @@ export default function SignIn() {
         }} 
       />
 
-      {/* Área de OAuth con Google */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={{
-          flexDirection: 'row',
-          backgroundColor: 'transparent', 
-          paddingVertical: 12, 
-          paddingHorizontal: 32, 
-          borderRadius: 5, 
-          borderColor: '#111111',
-          borderWidth: 2, 
-          width: '100%',
+          paddingVertical: 10,
           alignItems: 'center',
-          justifyContent: 'center'
-        }} 
-        // onPress={handleGoogleSignIn}
+        }}
+        onPress={handleSignIn}
       >
-        <Ionicons size={20} style={{marginEnd: 8}} name='logo-google' />
-        <Text style={{ color: 'black', fontSize: 16 }}>
-          Iniciar sesión con Google
-        </Text>
+        <Text
+          style={{
+            color: 'gray',
+            fontSize: 15
+          }}
+        >Ya tienes cuenta? Inicia sesión.</Text>
       </TouchableOpacity>
     </View>
   );
