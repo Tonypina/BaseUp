@@ -1,55 +1,89 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, Text } from 'react-native';
+import { Image, View, ScrollView, Platform, TouchableOpacity, Text } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSession } from '@/context/ctx';
+import useFetch from '@/hooks/useFetch';
+import { router, useRouter } from 'expo-router';
 
 export default function HomeScreen() {
-  const { signOut } = useSession();
   const { session } = useSession()
+  const { 
+    isLoading,
+    data,
+    error
+  } = useFetch(JSON.parse(session).token, 'teams')
 
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      
-      <TouchableOpacity 
-        style={{
+  return (    
+    <ScrollView style={{height: '100%', backgroundColor: 'white', paddingTop: 50, paddingHorizontal: 30}}>
+      <View style={{
+        flex: 1,
+      }}>
+        <Text style={{
+          fontSize: 25,
+          fontWeight: 'bold'
+        }}>Equipos</Text>
+
+        <View style={{
+          flex: 1,
           flexDirection: 'row',
-          backgroundColor: 'transparent', 
-          paddingVertical: 12, 
-          paddingHorizontal: 32, 
-          borderRadius: 5, 
-          borderColor: '#111111',
-          borderWidth: 2, 
-          width: '100%',
+          flexWrap: 'wrap',
           alignItems: 'center',
-          justifyContent: 'center'
-        }} 
-        onPress={() => signOut(JSON.parse(session).token)}
-      >
-        <Text style={{ color: 'black', fontSize: 16 }}>
-          Cerrar sesión
-        </Text>
-      </TouchableOpacity>
-
-    </ParallaxScrollView>
+          justifyContent: 'space-around',
+          paddingVertical: 40          
+        }}>
+          {isLoading ? (
+            <Text>Cargando...</Text>
+          ) : (
+            <>
+              {data.map((team, key) => (
+                <TouchableOpacity
+                  key={key}
+                  style={{
+                    backgroundColor: '#DADBDA',
+                    alignItems: 'center',              
+                    justifyContent: 'center',
+                    height: 140,           
+                    width: 170,
+                    borderRadius: 5,
+                    marginEnd: 10,     
+                    marginBottom: 12
+                  }}
+                  >
+                  <Image style={{
+                    position: 'absolute',
+                    width: 120,
+                    height: 120
+                  }} source={{uri: team.logo}} />
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#DADBDA',
+              alignItems: 'center',              
+              justifyContent: 'center',
+              height: 140,           
+              width: 170,
+              borderRadius: 5,
+              marginBottom: 12
+            }}
+            onPress={() => router.replace('/create-team')}
+          >
+            <Ionicons size={40} style={{color: 'gray', position: 'absolute'}} name='add' />
+          </TouchableOpacity>          
+                    
+          <View
+            style={{
+              backgroundColor: 'transparent',
+              paddingVertical: 50,           
+              paddingHorizontal: 65,
+            }}
+          >
+            <Ionicons size={40} style={{color: 'transparent'}} name='add' />
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
