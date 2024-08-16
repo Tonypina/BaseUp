@@ -6,17 +6,20 @@ import { StatusBar } from 'expo-status-bar';
 import { playerType, initialValuesPlayer } from '@/constants/Types';
 import { MultiSelect } from 'react-native-element-dropdown';
 import useFetch from '@/hooks/useFetch';
+import axios from 'axios';
 
-export default function UpdateTeam() {
+export default function UpdatePlayer() {
 
   const isPresented = router.canGoBack();
 
   const { session } = useSession();
-  const { playerId } = useLocalSearchParams<{ playerId: string }>()
+  const { playerId, teamId } = useLocalSearchParams<{ playerId: string, teamId: string }>()
 
   const { isLoading, data, error, positions } = useFetch(JSON.parse(session).token, 'player/' + playerId, true);
 
   const [player, setPlayer] = useState<playerType>(initialValuesPlayer)
+
+  const [isSecureContext, setIsSent] = useState(false);  
 
   useEffect(() => {
 
@@ -31,12 +34,39 @@ export default function UpdateTeam() {
     setPlayerValues()
   }, [data])
 
+  const handleSubmit = async () => {
+    
+    try {
+      
+      let res = await axios({
+        method: 'put',
+        url: process.env.EXPO_PUBLIC_API_URL + 'player/' + data?.id,
+        headers: {
+          Authorization: 'Bearer '+ JSON.parse(session).token
+        },
+        data: player
+      })
+
+      if (res.status === 201) {
+        setIsSent(true);
+
+        router.back()
+      } else {
+        setIsSent(false);
+      }
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  }
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
       {/* Use `../` as a simple way to navigate to the root. This is not analogous to "goBack". */}
       {!isPresented && <Link href="../">Regresar</Link>}
 
-      <View style={{marginTop: 10}}>
+      <View style={{marginTop: 10, width: '80%'}}>
         <Text style={{
           fontSize: 22,
           fontWeight: 'bold',
@@ -100,36 +130,29 @@ export default function UpdateTeam() {
                   return {...prevPlayer, positions: item}
                 })
               }}
-            />
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#111111',
-                borderRadius: 5,
-                paddingVertical: 10,
-                alignItems: 'center',
-                width: '100%',
-                marginTop: 40,
-                marginBottom: 50,
-              }}
-              onPress={() => {
-                
-                setPlayer({
-                  name: '',
-                  number: '',
-                  positions: [],
-                })
-              }}
-            >
-              <Text
-                style={{
-                  color: 'white',
-                  fontSize: 15,
-                }}
-              >Modificar</Text>
-            </TouchableOpacity>
+            />            
           </>
         )}
       </View> 
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#111111',
+          borderRadius: 5,
+          paddingVertical: 10,
+          alignItems: 'center',
+          width: '70%',
+          marginTop: 40,
+          marginBottom: 50,
+        }}
+        onPress={handleSubmit}
+      >
+        <Text
+          style={{
+            color: 'white',
+            fontSize: 15,
+          }}
+        >Modificar</Text>
+      </TouchableOpacity>
       {/* Native modals have dark backgrounds on iOS. Set the status bar to light content and add a fallback for other platforms with auto. */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>

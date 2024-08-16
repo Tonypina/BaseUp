@@ -1,10 +1,11 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { View, TouchableOpacity } from 'react-native';
 import { useFonts } from 'expo-font';
-import { Redirect, router, Stack } from 'expo-router';
+import { Redirect, Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSession } from '@/context/ctx';
@@ -41,20 +42,21 @@ export default function TeamsLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <View style={{
-        paddingTop: 50,
-        paddingLeft: 20,
-        backgroundColor: '#EDECEC'
+          paddingVertical: 40,
+          paddingLeft: 20,
+          backgroundColor: 'white'
       }}>
-        <TouchableOpacity
-          onPress={() => router.replace('/')}
-        >
+          <TouchableOpacity
+          onPress={() => router.back()}
+          >
           <Ionicons size={30} name='chevron-back-outline' />
-        </TouchableOpacity>
+          </TouchableOpacity>
       </View>
       <Stack>
-        <Stack.Screen name="show-team" options={{ headerShown: false }} />
         <Stack.Screen name="create-team" options={{ headerShown: false }} />
         <Stack.Screen name="update-team" options={{ headerShown: false }} />
+        <Stack.Screen name="add-player" options={{ headerShown: false }} />
+        <Stack.Screen name="update-player" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

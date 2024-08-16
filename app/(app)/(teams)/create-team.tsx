@@ -8,42 +8,20 @@ import useFetch from '@/hooks/useFetch';
 import { MultiSelect } from 'react-native-element-dropdown';
 import { Table, Row, Rows } from 'react-native-table-component';
 import axios from 'axios';
+import { teamType, playerType, initialValuesPlayer, initialValuesTeam, positionType } from '@/constants/Types';
 
-type playerType = {
-  name: string,
-  number: string,
-  positions: []
-}
-
-type teamType = {
-  name: string,
-  logo: string,
-  players: playerType[]
-}
-
-const initialValuesNewTeam: teamType = {
-  name: '',
-  logo: '',
-  players: []
-}
-
-const initialValuesNewPlayer: playerType = {
-  name: '',
-  number: '',
-  positions: []
-}
 
 export default function CreateTeam() {
   const { session } = useSession();
   const { isLoading, data, error } = useFetch(JSON.parse(session).token, 'positions');
 
-  const [newTeam, setNewTeam] = useState<teamType>(initialValuesNewTeam)
-  const [newPlayer, setNewPlayer] = useState<playerType>(initialValuesNewPlayer)
+  const [newTeam, setNewTeam] = useState<teamType>(initialValuesTeam)
+  const [newPlayer, setNewPlayer] = useState<playerType>(initialValuesPlayer)
 
   const handleSubmit = async () => {
     try {
 
-      await axios({
+      let res = await axios({
         method: 'post',
         url: process.env.EXPO_PUBLIC_API_URL + 'team',
         headers: {
@@ -51,9 +29,13 @@ export default function CreateTeam() {
           Authorization: 'Bearer ' + JSON.parse(session).token
         },
         data: JSON.stringify(newTeam)
-      }).then(res => {
+      })
+      
+      if (res.status === 201) {
         router.replace('/')
-      }).catch(err => err.response.data.errors ? console.log(err.response.data.errors) : console.log(err))
+        router.navigate('/')
+      }
+      
     } catch (error) {
       console.log(error);
     }
@@ -90,7 +72,7 @@ export default function CreateTeam() {
   } 
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#EDECEC', paddingHorizontal: 40}}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 40}}>
       <Text style={{
         fontSize: 60,
         marginBottom: 10,
@@ -178,6 +160,7 @@ export default function CreateTeam() {
         <TextInput
           style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
           placeholder="Número"
+          keyboardType="numeric"
           value={newPlayer.number}
           onChangeText={newNumber => setNewPlayer(prevPlayer => {
             return {...prevPlayer, number: newNumber}
@@ -205,7 +188,7 @@ export default function CreateTeam() {
             data={data}
             search
             labelField="description"
-            valueField="acronym"
+            valueField="id"
             value={newPlayer.positions}
             placeholder={'Seleccionar'}
             searchPlaceholder="Busca..."
@@ -258,18 +241,43 @@ export default function CreateTeam() {
           fontWeight: 'bold',
           marginBottom: 20
         }}>Jugadores agregados</Text>
-        <Table borderStyle={{borderWidth: 0.5, borderColor: 'gray'}}>
-          <Row data={['Posición', 'Nombre', 'Número']} style={{
-            height: 40,
-            backgroundColor: '#111111'
-          }} textStyle={{
-            margin: 6,
-            color: 'white'
-          }}/>
-          <Rows data={newTeam.players.map(player => {
-            return [player.positions, player.name, player.number]
-          })}/>
-        </Table>
+        <Table 
+                borderStyle={{borderWidth: 0.5, borderColor: 'gray', alignItems: 'center'}}
+              >
+                <Row data={['Posiciones', 'Nombre', 'Número']} style={{
+                  height: 40,
+                  backgroundColor: '#111111'
+                }} textStyle={{
+                  margin: 6,
+                  fontSize: 16,
+                  color: 'white'
+                }}
+                widthArr={[90, 165, 75]}
+                />
+                {
+                  newTeam.players.map(player => {
+
+                    let playerPositions = ''
+
+                    player.positions.forEach(position => {
+                      playerPositions += `${data[position-1].acronym} `
+                    });
+                    
+                    return <TouchableOpacity
+                    ><Row 
+                      data={[playerPositions, player.name, player.number]}
+                      textStyle={{
+                        margin: 6,
+                        fontSize: 16
+                      }}
+                      style={{
+                        alignItems: 'center'
+                      }}
+                      widthArr={[90, 165, 75]}
+                    /></TouchableOpacity>
+                  })
+                }
+              </Table>
       </View>
 
       <TouchableOpacity

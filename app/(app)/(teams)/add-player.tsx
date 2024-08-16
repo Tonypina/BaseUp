@@ -6,42 +6,74 @@ import { StatusBar } from 'expo-status-bar';
 import { playerType, initialValuesPlayer } from '@/constants/Types';
 import { MultiSelect } from 'react-native-element-dropdown';
 import useFetch from '@/hooks/useFetch';
+import axios from 'axios';
 
-export default function UpdateTeam() {
+export default function AddPlayer() {
 
   const isPresented = router.canGoBack();
 
   const { session } = useSession();
-  const { playerId } = useLocalSearchParams<{ playerId: string }>()
-
-  const { isLoading, data, error, positions } = useFetch(JSON.parse(session).token, 'player/' + playerId, true);
+  const { isLoading, data, error } = useFetch(JSON.parse(session).token, 'positions');
+  const { teamId } = useLocalSearchParams<{ teamId: string }>()
 
   const [player, setPlayer] = useState<playerType>(initialValuesPlayer)
 
+  const [isSent, setIsSent] = useState(false);
+
   useEffect(() => {
 
-    const setPlayerValues = () => {
-      setPlayer({
-        name: data?.name,
-        number: data?.number,
-        positions: data?.positions.map((position) => position.id),
+    const addTeamIdToPlayer = () => {
+
+      setPlayer(prevPlayer => {
+        return {
+          ...prevPlayer,
+          team_id: teamId
+        }
       })
     }
 
-    setPlayerValues()
-  }, [data])
+    addTeamIdToPlayer()
+
+  }, [])
+
+  const handleSubmit = async () => {
+    
+    try {
+      
+      let res = await axios({
+        method: 'post',
+        url: process.env.EXPO_PUBLIC_API_URL + 'player',
+        headers: {
+          Authorization: 'Bearer '+ JSON.parse(session).token
+        },
+        data: player
+      })
+
+      if (res.status === 201) {
+        setIsSent(true);
+
+        router.back()
+      } else {
+        setIsSent(false);
+      }
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
       {/* Use `../` as a simple way to navigate to the root. This is not analogous to "goBack". */}
       {!isPresented && <Link href="../">Regresar</Link>}
 
-      <View style={{marginTop: 10}}>
+      <View style={{marginTop: 10, width: '80%'}}>
         <Text style={{
           fontSize: 22,
           fontWeight: 'bold',
           marginBottom: 20
-        }}>Modifica al jugador seleccionado</Text>
+        }}>Agrega un nuevo jugador al equipo</Text>
 
         {isLoading ? (
           <Text>Cargando...</Text>
@@ -88,7 +120,7 @@ export default function UpdateTeam() {
               inputSearchStyle={{
                 borderRadius: 5,
               }}
-              data={positions}
+              data={data}
               search
               labelField="description"
               valueField="id"
@@ -101,35 +133,28 @@ export default function UpdateTeam() {
                 })
               }}
             />
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#111111',
-                borderRadius: 5,
-                paddingVertical: 10,
-                alignItems: 'center',
-                width: '100%',
-                marginTop: 40,
-                marginBottom: 50,
-              }}
-              onPress={() => {
-                
-                setPlayer({
-                  name: '',
-                  number: '',
-                  positions: [],
-                })
-              }}
-            >
-              <Text
-                style={{
-                  color: 'white',
-                  fontSize: 15,
-                }}
-              >Modificar</Text>
-            </TouchableOpacity>
           </>
         )}
       </View> 
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#111111',
+          borderRadius: 5,
+          paddingVertical: 10,
+          alignItems: 'center',
+          width: '70%',
+          marginTop: 40,
+          marginBottom: 50,
+        }}
+        onPress={handleSubmit}
+      >
+        <Text
+          style={{
+            color: 'white',
+            fontSize: 15,
+          }}
+        >Agregar</Text>
+      </TouchableOpacity>
       {/* Native modals have dark backgrounds on iOS. Set the status bar to light content and add a fallback for other platforms with auto. */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
