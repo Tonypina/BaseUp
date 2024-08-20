@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { Text, View, Modal, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { router, useLocalSearchParams, Link } from 'expo-router';
 import { useSession } from '@/context/ctx';
 import * as DocumentPicker from 'expo-document-picker';
@@ -8,6 +8,7 @@ import useFetch from '@/hooks/useFetch';
 import { Table, Row } from 'react-native-table-component';
 import axios from 'axios';
 import { teamType, initialValuesTeam } from '@/constants/Types';
+import Loading from '@/components/Loading';
 
 export default function ShowTeam() {
   const { session } = useSession();
@@ -15,23 +16,30 @@ export default function ShowTeam() {
 
   const { isLoading, data, positions, error } = useFetch(JSON.parse(session).token, 'team/' + teamId, true);
 
-  const [isEditing, setIsEditing] = useState(false);
   const [team, setTeam] = useState<teamType>(initialValuesTeam)
 
-  const handleSubmit = async () => {
+  const [modalVisible, setModalVisible] = useState(false)
+
+  const handleDeleteTeam = async () => {
     try {
 
-      await axios({
-        method: 'post',
-        url: process.env.EXPO_PUBLIC_API_URL + 'team',
+      
+      let res = await axios({
+        method: 'delete',
+        url: process.env.EXPO_PUBLIC_API_URL + 'team/' + data?.id,
         headers: {
           "Content-Type": 'application/json',
           Authorization: 'Bearer ' + JSON.parse(session).token
         },
-        data: JSON.stringify(team)
-      }).then(res => {
-        router.back()
-      }).catch(err => err.response.data.errors ? console.log(err.response.data.errors) : console.log(err))
+      })
+      
+      if (res.status === 200) {
+        setModalVisible(false)
+        router.replace('/');
+      } else {
+        setModalVisible(false)
+        console.log(res.data);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -68,14 +76,88 @@ export default function ShowTeam() {
   } 
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 40, paddingTop: 90}}>
+    <ScrollView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 40, paddingTop: 120}}>
       {isLoading ? 
-          <Text>Cargando...</Text>
+          <Loading/>
           :
           <>
-            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {
+                setModalVisible(!modalVisible);
+              }}
+            >
+              <View style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <View style={{
+                  margin: 20,
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  padding: 35,
+                  alignItems: 'center',
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 4,
+                  elevation: 5,
+                }}>
+                  <View style={{
+                    width: 200,
+                    marginBottom: 20
+                  }}>
+                    <Text style={{width: '100%'}}>Are you sure to delete <Text style={{fontWeight: 'bold'}}>{data.name}</Text>?</Text>
+                  </View>
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    columnGap: 10,
+                    width: 160
+                  }}>
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#293452',
+                        borderRadius: 5,
+                        paddingVertical: 5,
+                        paddingHorizontal: 10,
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
+                      onPress={handleDeleteTeam}>
+                      <Text style={{color: 'white'}}>Delete</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#8A8178',
+                        borderRadius: 5,
+                        paddingVertical: 5,
+                        paddingHorizontal: 10,
+                        alignItems: 'center',
+                        width: '100%',
+                      }}
+                      onPress={() => setModalVisible(!modalVisible)}>
+                      <Text style={{color: 'white'}}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingHorizontal: 10, marginBottom: 30}}>
               {data.logo !== '' && (
-                <View style={{marginVertical: 20, alignItems: 'center'}}>
+                <View style={{flex: 1, marginVertical: 20, alignItems: 'center'}}>
                   <Image 
                     source={{uri: data.logo}}
                     style={{ width: 100, height: 100 }}
@@ -84,7 +166,10 @@ export default function ShowTeam() {
               )}
 
               <View style={{
-                marginLeft: 13
+                flex: 3,
+                marginLeft: 13,
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
                 <Text style={{
                   fontSize: 50,
@@ -94,47 +179,26 @@ export default function ShowTeam() {
                 </Text>
               </View>
             </View>
-            {isEditing ? (
-              <>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#111111',
-                    borderRadius: 5,
-                    paddingVertical: 10,
-                    alignItems: 'center',
-                    width: '100%'
-                  }}
-                  onPress={pickImage}
-                >
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 15
-                    }}
-                  >Seleccionar imagen</Text>
-                </TouchableOpacity>
-              </>
-            ) : null}
 
             <View style={{marginVertical: 40, alignItems: 'center'}}>
               <Text style={{
                 fontSize: 22,
                 fontWeight: 'bold',
                 marginBottom: 5
-              }}>Jugadores agregados</Text>
+              }}>Added players</Text>
 
               <Text style={{
                 fontSize: 13,
                 marginBottom: 15,
                 color: 'gray'
               }}>
-                Selecciona para modificar
+                Select to modify
               </Text>
 
               <Table 
                 borderStyle={{borderWidth: 0.5, borderColor: 'gray', alignItems: 'center'}}
               >
-                <Row data={['Posiciones', 'Nombre', 'Número']} style={{
+                <Row data={['Positions', 'Name', 'Number']} style={{
                   height: 40,
                   backgroundColor: '#111111'
                 }} textStyle={{
@@ -178,7 +242,7 @@ export default function ShowTeam() {
                 paddingVertical: 10,
                 alignItems: 'center',
                 width: '100%',
-                marginBottom: 100,
+                marginBottom: 30,
               }}
               onPress={() => router.push({pathname: '/add-player', params: { teamId: data?.id }})}
             >
@@ -187,7 +251,37 @@ export default function ShowTeam() {
                   color: 'white',
                   fontSize: 15
                 }}
-              >Agregar otro jugador</Text>
+              >Add another player</Text>
+            </TouchableOpacity>
+
+            {/* Divisor */}
+            <View 
+              style={{
+                width: '100%', 
+                height: 0.5, 
+                backgroundColor: 'gray',
+                marginVertical: 20
+              }} 
+            />
+
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#A51C30',
+                borderRadius: 5,
+                paddingVertical: 10,
+                alignItems: 'center',
+                width: '100%',
+                marginTop: 30,
+                marginBottom: 180,
+              }}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: 15
+                }}
+              >Delete team</Text>
             </TouchableOpacity>
           </>
       }

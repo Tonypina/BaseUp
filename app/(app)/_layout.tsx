@@ -4,9 +4,11 @@ import { Redirect, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import Sidebar from '@/components/Sidebar';
+import Header from '@/components/Header';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useSession } from '@/context/ctx';
+import { useSession, SidebarProvider } from '@/context/ctx';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -39,14 +41,18 @@ export default function AppLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack
-        screenOptions={{gestureEnabled: false}}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="(teams)" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="not-found" />
-      </Stack>
+      <SidebarProvider>
+        <Header/>
+        <Sidebar/>
+        <Stack
+          screenOptions={{gestureEnabled: false}}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="(teams)" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="not-found" />
+        </Stack>
+      </SidebarProvider>
     </ThemeProvider>
   );
 }

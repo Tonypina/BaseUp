@@ -22,12 +22,12 @@ export default function SignIn() {
         setError('');
       } else {
 
-        setError('Las credenciales son erroneas. Vuélvelo a intentar.');
+        setError('Wrong credentials. Try again.');
       }
       
     } catch (error) {
       
-      setError('Las credenciales son erroneas. Vuélvelo a intentar.');
+      setError('Wrong credentials. Try again.');
     }
   };
   
@@ -46,23 +46,23 @@ export default function SignIn() {
         fontSize: 60,
         marginBottom: 10,
       }}>
-        Iniciar Sesión
+        Sign In
       </Text>
       <Text style={{
         fontSize: 17,
         marginBottom: 30,
         color: 'gray'
       }}>
-        Ingresa tus credenciales para entrar
+        Enter your login cerdentials
       </Text>
 
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Correo electrónico</Text>
+      }}>E-mail</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Correo electrónico"
+        placeholder="baseup@example.com"
         value={username}
         onChangeText={setUsername}
       />
@@ -70,10 +70,10 @@ export default function SignIn() {
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Contraseña</Text>
+      }}>Password</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Contraseña"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -103,7 +103,7 @@ export default function SignIn() {
               color: 'white',
               fontSize: 17
             }}
-          >Ingresar</Text>
+          >Sign In</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={{
@@ -117,7 +117,7 @@ export default function SignIn() {
               color: 'gray',
               fontSize: 15
             }}
-          >No tienes cuenta? Regístrate</Text>
+          >Don't have an account? Register</Text>
         </TouchableOpacity>
       </View>
 
@@ -149,7 +149,7 @@ export default function SignIn() {
       >
         <Ionicons size={20} style={{marginEnd: 8}} name='logo-google' />
         <Text style={{ color: 'black', fontSize: 16 }}>
-          Iniciar sesión con Google
+          Sign In with Google
         </Text>
       </TouchableOpacity>
     </View>

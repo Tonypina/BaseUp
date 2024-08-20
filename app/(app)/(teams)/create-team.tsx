@@ -77,23 +77,23 @@ export default function CreateTeam() {
         fontSize: 60,
         marginBottom: 10,
       }}>
-        Nuevo equipo
+        New team
       </Text>
       <Text style={{
         fontSize: 17,
         marginBottom: 30,
         color: 'gray'
       }}>
-        Crea un equipo
+        Create a team
       </Text>
 
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Nombre del equipo</Text>
+      }}>Team name</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Nombre del equipo"
+        placeholder="Team name"
         value={newTeam.name}
         onChangeText={newName => setNewTeam(prevTeam => {
           return {...prevTeam, name: newName}
@@ -103,7 +103,7 @@ export default function CreateTeam() {
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Escudo del equipo</Text>
+      }}>Team logo</Text>
 
       <TouchableOpacity
         style={{
@@ -120,7 +120,7 @@ export default function CreateTeam() {
             color: 'white',
             fontSize: 15
           }}
-        >Seleccionar imagen</Text>
+        >Select image</Text>
       </TouchableOpacity>
 
       {newTeam.logo !== '' && (
@@ -138,15 +138,15 @@ export default function CreateTeam() {
           fontSize: 18,
           fontWeight: 'bold',
           marginBottom: 20
-        }}>Agrega tus jugadores</Text>
+        }}>Add your players</Text>
         
         <Text style={{
           fontSize: 15,
           marginBottom: 10
-        }}>Nombre</Text>
+        }}>Name</Text>
         <TextInput
           style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-          placeholder="Nombre"
+          placeholder="Name"
           value={newPlayer.name}
           onChangeText={newName => setNewPlayer(prevPlayer => {
             return {...prevPlayer, name: newName}
@@ -156,10 +156,10 @@ export default function CreateTeam() {
         <Text style={{
           fontSize: 15,
           marginBottom: 10
-        }}>Número</Text>
+        }}>Number</Text>
         <TextInput
           style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-          placeholder="Número"
+          placeholder="Number"
           keyboardType="numeric"
           value={newPlayer.number}
           onChangeText={newNumber => setNewPlayer(prevPlayer => {
@@ -170,7 +170,7 @@ export default function CreateTeam() {
         <Text style={{
           fontSize: 15,
           marginBottom: 10
-        }}>Posiciones</Text>
+        }}>Positions</Text>
         {isLoading ? (
           <Text>Cargando...</Text>
         ) : (
@@ -190,8 +190,8 @@ export default function CreateTeam() {
             labelField="description"
             valueField="id"
             value={newPlayer.positions}
-            placeholder={'Seleccionar'}
-            searchPlaceholder="Busca..."
+            placeholder={'Select'}
+            searchPlaceholder="Search..."
             onChange={item => {
               setNewPlayer(prevPlayer => {
                 return {...prevPlayer, positions: item}
@@ -231,7 +231,7 @@ export default function CreateTeam() {
               color: 'white',
               fontSize: 15
             }}
-          >Agregar</Text>
+          >Add</Text>
         </TouchableOpacity>
       </View>
 
@@ -240,11 +240,11 @@ export default function CreateTeam() {
           fontSize: 18,
           fontWeight: 'bold',
           marginBottom: 20
-        }}>Jugadores agregados</Text>
+        }}>Added players</Text>
         <Table 
                 borderStyle={{borderWidth: 0.5, borderColor: 'gray', alignItems: 'center'}}
               >
-                <Row data={['Posiciones', 'Nombre', 'Número']} style={{
+                <Row data={['Positions', 'Name', 'Number']} style={{
                   height: 40,
                   backgroundColor: '#111111'
                 }} textStyle={{
@@ -296,7 +296,7 @@ export default function CreateTeam() {
             color: 'white',
             fontSize: 15
           }}
-        >Crear</Text>
+        >Create</Text>
       </TouchableOpacity>
     </ScrollView>
   );

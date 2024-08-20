@@ -1,17 +1,13 @@
-import { Tabs, router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { Tabs, useLocalSearchParams, useNavigation } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
-import { View, TouchableOpacity } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect } from 'react';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabsLayout() {
     const colorScheme = useColorScheme();
-
     const { teamId } = useLocalSearchParams<{ teamId: string }>()
-
     const navigation = useNavigation();
 
     useEffect(() => { 
@@ -23,19 +19,6 @@ export default function TabsLayout() {
 
     return (
         <>
-            <View style={{
-                paddingTop: 40,
-                paddingLeft: 20,
-                backgroundColor: 'transparent',
-                position: 'absolute',
-                zIndex: 2
-            }}>
-                <TouchableOpacity
-                onPress={() => router.navigate('/')}
-                >
-                <Ionicons size={30} name='chevron-back-outline' />
-                </TouchableOpacity>
-            </View>
             <Tabs
                 screenOptions={{
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -59,7 +42,7 @@ export default function TabsLayout() {
                 <Tabs.Screen
                 name="lineup"
                 options={{
-                    title: 'Alineación',
+                    title: 'Lineup',
                     tabBarIcon: ({ color, focused }) => (
                     <TabBarIcon name={focused ? 'clipboard' : 'clipboard-outline'} color={color} />
                     ),
@@ -72,14 +55,14 @@ export default function TabsLayout() {
                 }}
                 />
                 <Tabs.Screen
-                name="settings"
+                name="history"
                 options={{
-                    title: 'Configuración',
+                    title: 'History',
                     tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'settings' : 'settings-outline'} color={color} />
+                    <TabBarIcon name={focused ? 'time' : 'time-outline'} color={color} />
                     ),
                     href: {
-                        pathname: '/settings',
+                        pathname: '/history',
                         params: {
                             teamId: teamId
                         },

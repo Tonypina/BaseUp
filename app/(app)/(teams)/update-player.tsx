@@ -7,6 +7,7 @@ import { playerType, initialValuesPlayer } from '@/constants/Types';
 import { MultiSelect } from 'react-native-element-dropdown';
 import useFetch from '@/hooks/useFetch';
 import axios from 'axios';
+import Loading from '@/components/Loading';
 
 export default function UpdatePlayer() {
 
@@ -71,19 +72,21 @@ export default function UpdatePlayer() {
           fontSize: 22,
           fontWeight: 'bold',
           marginBottom: 20
-        }}>Modifica al jugador seleccionado</Text>
+        }}>Modify the selected player</Text>
 
         {isLoading ? (
-          <Text>Cargando...</Text>
+          <View style={{position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height:'100%', backgroundColor: 'white'}}>
+            <Loading/>
+          </View>
         ) : (
           <>
             <Text style={{
               fontSize: 15,
               marginBottom: 10
-            }}>Nombre</Text>
+            }}>Name</Text>
             <TextInput
               style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-              placeholder="Nombre"
+              placeholder="Name"
               value={player.name}
               onChangeText={newName => setPlayer(prevPlayer => {
                 return {...prevPlayer, name: newName}
@@ -93,10 +96,10 @@ export default function UpdatePlayer() {
             <Text style={{
               fontSize: 15,
               marginBottom: 10
-            }}>Número</Text>
+            }}>Number</Text>
             <TextInput
               style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-              placeholder="Número"
+              placeholder="Number"
               value={player.number}
               onChangeText={newNumber => setPlayer(prevPlayer => {
                 return {...prevPlayer, number: newNumber}
@@ -106,7 +109,7 @@ export default function UpdatePlayer() {
             <Text style={{
               fontSize: 15,
               marginBottom: 10
-            }}>Posiciones</Text>
+            }}>Positions</Text>
             <MultiSelect
               style={{
                 borderColor: "gray",
@@ -123,8 +126,8 @@ export default function UpdatePlayer() {
               labelField="description"
               valueField="id"
               value={player.positions}
-              placeholder={'Seleccionar'}
-              searchPlaceholder="Busca..."
+              placeholder={'Select'}
+              searchPlaceholder="Search..."
               onChange={item => {
                 setPlayer(prevPlayer => {
                   return {...prevPlayer, positions: item}
@@ -151,7 +154,7 @@ export default function UpdatePlayer() {
             color: 'white',
             fontSize: 15,
           }}
-        >Modificar</Text>
+        >Update</Text>
       </TouchableOpacity>
       {/* Native modals have dark backgrounds on iOS. Set the status bar to light content and add a fallback for other platforms with auto. */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

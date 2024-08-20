@@ -21,12 +21,12 @@ export default function Register() {
         
       } else {
         
-        setError('Ocurrió un problema. Vuélvelo a intentar.');
+        setError('A problem ocurred. Try again.');
       }
       
     } catch (error) {
       
-      setError('Ocurrió un problema. Vuélvelo a intentar.');
+      setError('A problem ocurred. Try again.');
     }
   };
   
@@ -40,23 +40,23 @@ export default function Register() {
         fontSize: 60,
         marginBottom: 10,
       }}>
-        Regístrate
+        Register
       </Text>
       <Text style={{
         fontSize: 17,
         marginBottom: 30,
         color: 'gray'
       }}>
-        Crea una cuenta
+        Create an account
       </Text>
 
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Nombre</Text>
+      }}>Name</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Nombre"
+        placeholder="Name"
         value={name}
         onChangeText={setName}
       />
@@ -64,10 +64,10 @@ export default function Register() {
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Correo electrónico</Text>
+      }}>E-mail</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Correo electrónico"
+        placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
       />
@@ -75,10 +75,10 @@ export default function Register() {
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Contraseña</Text>
+      }}>Password</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Contraseña"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -87,10 +87,10 @@ export default function Register() {
       <Text style={{
         fontSize: 15,
         marginBottom: 10
-      }}>Confirma contraseña</Text>
+      }}>Confirm password</Text>
       <TextInput
         style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
-        placeholder="Confirmacion"
+        placeholder="Confirmation"
         value={c_password}
         onChangeText={setCPassword}
         secureTextEntry
@@ -120,7 +120,7 @@ export default function Register() {
               color: 'white',
               fontSize: 17
             }}
-          >Registrarme</Text>
+          >Register</Text>
         </TouchableOpacity>
       </View>
 
@@ -146,7 +146,7 @@ export default function Register() {
             color: 'gray',
             fontSize: 15
           }}
-        >Ya tienes cuenta? Inicia sesión.</Text>
+        >Already have an account? Sign In.</Text>
       </TouchableOpacity>
     </View>
   );

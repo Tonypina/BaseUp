@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSession } from '@/context/ctx';
 import useFetch from '@/hooks/useFetch';
 import { router } from 'expo-router';
+import Loading from '@/components/Loading';
 
 export default function HomeScreen() {
 
@@ -15,7 +16,7 @@ export default function HomeScreen() {
   } = useFetch(JSON.parse(session).token, 'teams')
 
   return (    
-    <ScrollView style={{height: '100%', backgroundColor: 'white', paddingTop: 50, paddingHorizontal: 30}}>
+    <ScrollView style={{height: '100%', backgroundColor: 'white', paddingTop: 100, paddingHorizontal: 30}}>
       <View style={{
         flex: 1,
         paddingTop: 30
@@ -23,13 +24,13 @@ export default function HomeScreen() {
         <Text style={{
           fontSize: 60,
           marginBottom: 10
-        }}>Equipos</Text>
+        }}>Teams</Text>
 
       <Text style={{
         fontSize: 17,
         color: 'gray'
       }}>
-        Selecciona o crea un equipo
+        Select or create a team
       </Text>
 
         <View style={{
@@ -41,7 +42,7 @@ export default function HomeScreen() {
           paddingTop: 20          
         }}>
           {isLoading ? (
-            <Text>Cargando...</Text>
+            <Loading />
           ) : (
             <>
               {data.map((team, key) => (

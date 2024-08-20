@@ -93,8 +93,8 @@ export default function UpdateTeam() {
               labelField="description"
               valueField="id"
               value={player.positions}
-              placeholder={'Seleccionar'}
-              searchPlaceholder="Busca..."
+              placeholder={'Select'}
+              searchPlaceholder="Search..."
               onChange={item => {
                 setPlayer(prevPlayer => {
                   return {...prevPlayer, positions: item}
