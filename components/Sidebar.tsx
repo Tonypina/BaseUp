@@ -1,15 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, Easing, Text, TouchableOpacity } from 'react-native';
-import { useSession, useSidebar } from '@/context/ctx';
+import { Image, View, Animated, Easing, Text, TouchableOpacity } from 'react-native';
+import { useSession } from '@/context/AuthContext';
+import { useSidebar } from '@/context/SidebarContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from '@/constants/Colors';
+import { router } from 'expo-router';
 
 const Sidebar: React.FC = () => {
     const { session, signOut } = useSession();
 
-    const { isSidebarOpen } = useSidebar();
+    const { isSidebarOpen, toggleSidebar } = useSidebar();
     const slideAnim = useRef(new Animated.Value(0)).current;
     
+    const baseup_icon = require('@/assets/images/baseup_logo.png')
+
     useEffect(() => {
       Animated.timing(slideAnim, {
         toValue: isSidebarOpen ? 0 : 300,
@@ -26,9 +30,9 @@ const Sidebar: React.FC = () => {
           display: 'flex',
           right: 0,
           bottom: 0,
-          height: '90.5%',
+          height: '89.3%',
           width: '60%',
-          backgroundColor: 'white',
+          backgroundColor: '#F0F0F0',
           zIndex: 3,
           transform: [{ translateX: slideAnim.interpolate({
             inputRange: [0, 300],
@@ -43,18 +47,23 @@ const Sidebar: React.FC = () => {
             alignItems: 'center'
         }}>
             <View style={{
-                backgroundColor: 'black',
-                width: '100%',
-                flex: 1
+              width: '100%',
+              flex: 2,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingLeft: 10
             }}>
-
-                {/* <Text>Cerrar sesión</Text> */}
+              <Image style={{transform: 'scale(0.1)'}} source={baseup_icon} />
             </View>
             <View style={{
                 display: 'flex',
                 flexDirection: 'column',
                 flex: 9,
-                paddingTop: 40
+                paddingTop: 40,
+                width: '100%',
+                paddingLeft: 40
             }}>
               <View style={{
                 display: 'flex',
@@ -65,7 +74,10 @@ const Sidebar: React.FC = () => {
                 <View style={{marginRight: 10}}>
                   <Ionicons style={{color: Colors.light.text}} size={25} name='baseball-outline' />
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  router.replace('/');
+                  toggleSidebar()
+                }}>
                   <Text style={{
                     fontSize: 18, 
                     color: Colors.light.text,
@@ -142,6 +154,7 @@ const Sidebar: React.FC = () => {
                 width: '80%',
                 justifyContent: 'center',
                 borderTopWidth: 0.2,
+                borderTopColor: Colors.gray,
                 paddingVertical: 15
             }}>
               <View style={{

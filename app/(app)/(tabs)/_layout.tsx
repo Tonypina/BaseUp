@@ -2,6 +2,7 @@ import { Tabs, useLocalSearchParams, useNavigation } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useEffect } from 'react';
+import { BluetoothProvider } from '@/context/BluetoothContext';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -18,7 +19,7 @@ export default function TabsLayout() {
     }, []);
 
     return (
-        <>
+        <BluetoothProvider>
             <Tabs
                 screenOptions={{
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -70,6 +71,6 @@ export default function TabsLayout() {
                 }}
                 />
             </Tabs>
-        </>
+        </BluetoothProvider>
     )
 }

@@ -1,6 +1,5 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image, ScrollView, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import { router, useLocalSearchParams } from 'expo-router';
 import useFetch from '@/hooks/useFetch';
 import { useState } from 'react';
@@ -8,6 +7,9 @@ import { initialValuesPlayer, playerType, positionType, lineupType } from '@/con
 import { Dropdown } from 'react-native-element-dropdown';
 import Loading from '@/components/Loading';
 import axios from 'axios';
+import { Colors } from '@/constants/Colors';
+import { substitute, designated, flex } from '@/constants/PositionsNotRequired';
+import Checkbox from 'expo-checkbox';
 
 export default function LineUpScreen() {
   const { session } = useSession();
@@ -17,12 +19,15 @@ export default function LineUpScreen() {
 
   const [ lineup, setLineup ] = useState<lineupType>({
     name: new Date().toISOString().slice(0, 10) + ' Lineup',
+    opposing_team: '',
     players: []
   })
   const [ selectedPlayer, setSelectedPlayer ] = useState<playerType>(initialValuesPlayer)
   const [ selectedPosition, setSelectedPosition ] = useState<positionType>()
 
   const [ usedPositions, setUsedPositions ] = useState<positionType[]>([])
+
+  const [ isChecked, setIsChecked ] = useState<boolean>(false)
 
   let baseball_field = require('@/assets/images/baseball_field.png')  
 
@@ -89,6 +94,20 @@ export default function LineUpScreen() {
                   })}
                 />
               </View>
+              <View>
+                <Text style={{
+                  fontSize: 15,
+                  marginBottom: 10
+                }}>Opposing team</Text>
+                <TextInput
+                  style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
+                  placeholder="Opposing team"
+                  value={lineup?.opposing_team}
+                  onChangeText={newOpposingTeam => setLineup(prevLineup => {
+                    return {...prevLineup, opposing_team: newOpposingTeam}
+                  })}
+                />
+              </View>
               <View style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', columnGap: 15, marginBottom: 15}}>
                 <View style={{flex: 3}}>
                   <Text style={{
@@ -131,7 +150,7 @@ export default function LineUpScreen() {
                       height: 60,
                       width: '100%',
                     }}
-                    data={[...selectedPlayer.positions, {id: 11, acronym: 'ST', description: 'Substitute'}]}
+                    data={isChecked ? [...selectedPlayer.positions, substitute, designated] : [...selectedPlayer.positions, substitute]}
                     search
                     labelField="description"
                     valueField="acronym"
@@ -144,6 +163,21 @@ export default function LineUpScreen() {
                     excludeItems={usedPositions}
                   />
                 </View>
+              </View>
+
+              <View style= {{
+                display: 'flex',
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                marginBottom: 40,
+              }}>
+                <Text style={{marginRight: 10, fontSize: 15}}>Is Flex?</Text>
+                <Checkbox 
+                  value={isChecked} 
+                  onValueChange={setIsChecked} 
+                  disabled={lineup.players.find(p => p.is_flex === true) ? true : false}
+                />
               </View>
               
               <View style={{flex: 1, marginBottom: 50}}>
@@ -164,7 +198,7 @@ export default function LineUpScreen() {
                 ) : (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: '#111111',
+                      backgroundColor: Colors.blue,
                       borderRadius: 5,
                       paddingVertical: 10,
                       alignItems: 'center',
@@ -178,7 +212,8 @@ export default function LineUpScreen() {
                         players: [
                           ...lineup.players,
                           {...selectedPlayer,
-                            positions: [selectedPosition]
+                            positions: [selectedPosition],
+                            is_flex: isChecked
                           }
                         ]
                       })
@@ -536,7 +571,7 @@ export default function LineUpScreen() {
                 ) : (
                   <TouchableOpacity
                     style={{
-                      backgroundColor: '#111111',
+                      backgroundColor: Colors.blue,
                       borderRadius: 5,
                       paddingVertical: 10,
                       alignItems: 'center',
@@ -552,7 +587,7 @@ export default function LineUpScreen() {
                           Authorization: 'Bearer ' + JSON.parse(session).token
                         },
                         data: lineup
-                      })
+                      }).catch(e => console.log(e))
 
                       if (res.status === 201) {
 

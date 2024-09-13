@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, View, Modal, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { router, useLocalSearchParams, Link } from 'expo-router';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import useFetch from '@/hooks/useFetch';
@@ -9,6 +9,7 @@ import { Table, Row } from 'react-native-table-component';
 import axios from 'axios';
 import { teamType, initialValuesTeam } from '@/constants/Types';
 import Loading from '@/components/Loading';
+import { Colors } from '@/constants/Colors';
 
 export default function ShowTeam() {
   const { session } = useSession();
@@ -155,7 +156,7 @@ export default function ShowTeam() {
               </View>
             </Modal>
 
-            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingHorizontal: 10, marginBottom: 30}}>
+            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingHorizontal: 10, marginBottom: 10}}>
               {data.logo !== '' && (
                 <View style={{flex: 1, marginVertical: 20, alignItems: 'center'}}>
                   <Image 
@@ -178,6 +179,36 @@ export default function ShowTeam() {
                   {data.name}
                 </Text>
               </View>
+            </View>
+
+            <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{
+                  flex: 1,
+                  alignItems: 'center'
+                }}>
+                  <Text style={{fontSize: 20, fontWeight: 'bold'}}>Manager</Text>
+                </View>
+                <View style={{
+                  flex: 1,
+                  alignItems: 'center'
+                }}>
+                  <Text style={{fontSize: 20, fontWeight: 'bold'}}>Coach</Text>
+                </View>
+            </View>
+
+            <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{
+                  flex: 1,
+                  alignItems: 'center'
+                }}>
+                  <Text style={{fontSize: 20}}>{data.manager}</Text>
+                </View>
+                <View style={{
+                  flex: 1,
+                  alignItems: 'center'
+                }}>
+                  <Text style={{fontSize: 20}}>{data.coach}</Text>
+                </View>
             </View>
 
             <View style={{marginVertical: 40, alignItems: 'center'}}>
@@ -237,7 +268,7 @@ export default function ShowTeam() {
 
             <TouchableOpacity
               style={{
-                backgroundColor: '#111111',
+                backgroundColor: Colors.blue,
                 borderRadius: 5,
                 paddingVertical: 10,
                 alignItems: 'center',

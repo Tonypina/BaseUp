@@ -1,5 +1,5 @@
 import { Image, ScrollView, View, Text, Modal, TouchableOpacity } from 'react-native';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import { useLocalSearchParams } from 'expo-router';
 import useFetch from '@/hooks/useFetch';
 import { useState, useRef } from 'react';
@@ -9,24 +9,46 @@ import Loading from '@/components/Loading';
 import { coords } from '@/constants/Coords';
 import  { captureRef }  from 'react-native-view-shot';
 import { shareAsync } from 'expo-sharing';
+import RNFS from 'react-native-fs';
+import BluetoothModal from '@/components/BluetoothModal'
+import { useBluetooth } from '@/context/BluetoothContext';
 
 export default function HistoryScreen() {
   const { session } = useSession();
+  const { isBluetoothConnected, printToDevice } = useBluetooth();
   const { teamId } = useLocalSearchParams<{ teamId: string }>()
 
   const { isLoading, data, positions } = useFetch(JSON.parse(session).token, `team/${teamId}/lineup`, true);
-
   const [ lineup, setLineup ] = useState<lineupType>({
     name: new Date().toISOString().slice(0, 10) + ' Lineup',
     players: [],
     created_at: new Date().toISOString()
   })
-
-  const [ modalVisible, setModalVisible ] = useState<boolean>(false)
+  let baseball_field = require('@/assets/images/baseball_field.png')  
+  const [ imageToPrint, setImageToPrint ] = useState("");
 
   const lineupRef = useRef()
+  const [ modalVisible, setModalVisible ] = useState<boolean>(false)
+  const [ bluetoothModalVisible, setBluetoothModalVisible ] = useState<boolean>(false)
 
-  let baseball_field = require('@/assets/images/baseball_field.png')  
+  const convertImageToBase64 = async (imagePath: string) => {
+    try {
+      const base64String = await RNFS.readFile(imagePath, 'base64');
+      setImageToPrint(base64String);
+    } catch (error) {
+      console.error('Error converting image to Base64:', error);
+    }
+  };
+
+  const print = async () => {
+    try {
+      const message = await printToDevice(imageToPrint);
+
+      alert(message);
+    } catch (error) {
+      alert(error);
+    }
+  }
 
   return (
       <ScrollView style={{backgroundColor: 'white', paddingTop: 120}}>
@@ -80,7 +102,29 @@ export default function HistoryScreen() {
                   <View style={{
                     marginRight: 20
                   }}>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        try {
+
+                          if (isBluetoothConnected) {
+                            const uri = await captureRef(lineupRef, {
+                              height: 1000,
+                              quality: 1
+                            });
+                        
+                            await convertImageToBase64(uri);
+                          
+                            await print();
+                          
+                          } else {
+                            setBluetoothModalVisible(true);
+                          }
+                          
+                        } catch (error) {
+                          console.error('Error al imprimir la imagen:', error);
+                        }
+                      }}
+                    >
                       <Ionicons size={25} style={{right: 0}} name='document-outline' />
                     </TouchableOpacity>
                   </View>
@@ -117,39 +161,107 @@ export default function HistoryScreen() {
                         paddingHorizontal: 20,
                         paddingVertical: 20,
                       }}>
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                        <View style={{display: 'flex', flexDirection: 'row'}}>
                           {data.team_logo !== '' && (
                             <View style={{flex: 1, alignItems: 'center'}}>
                               <Image 
                                 source={{uri: data.team_logo}}
-                                style={{ width: 100, height: 100 }}
+                                style={{ width: 120, height: 120 }}
                               />
                             </View>
                           )}
 
                           <View style={{
-                            flex: 3,
-                            marginLeft: 13,
-                            justifyContent: 'center'
+                            flex: 2,
+                            justifyContent: 'center',
+                            alignItems: 'center'
                           }}>
                             <Text style={{
-                              fontSize: 20,
-                              marginBottom: 7,
+                              fontSize: 25,
                               fontWeight: 'bold'
                             }}>
-                              {data.team_name} Lineup
+                              {data.team_name}
                             </Text>
                             <Text style={{
-                              fontSize: 15,
-                              marginBottom: 7,
+                              fontSize: 13,
+                              fontWeight: 'bold'
                             }}>
-                              Date: {lineup.created_at.slice(0, 10).replace('-', ' / ').replace('-', ' / ')}
+                              vs
                             </Text>
                             <Text style={{
-                              fontSize: 15,
-                              marginBottom: 7,
+                              fontSize: 13,
+                              fontWeight: 'bold'
                             }}>
-                              Coach: {JSON.parse(session).name}
+                              {lineup.opposing_team}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>                          
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                              fontWeight: 'bold'
+                            }}>
+                              Manager
+                            </Text>
+                          </View>
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                              fontWeight: 'bold'
+                            }}>
+                              Coach
+                            </Text>
+                          </View>
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                              fontWeight: 'bold'
+                            }}>
+                              Date
+                            </Text>
+                          </View>
+                        </View>
+
+                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>                          
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                            }}>
+                              {data.team_manager}
+                            </Text>
+                          </View>
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                            }}>
+                              {data.team_coach}
+                            </Text>
+                          </View>
+                          <View style={{
+                            flex: 1,
+                            alignItems: 'center'
+                          }}>
+                            <Text style={{
+                              fontSize: 15,
+                            }}>
+                              {lineup.created_at.slice(0, 10).replace('-', '/').replace('-', '/')}
                             </Text>
                           </View>
                         </View>
@@ -189,6 +301,7 @@ export default function HistoryScreen() {
                             </View>
                           </View>
                           {lineup.players.filter(player => player.position !== '11').map((player, index) => {
+                            
                             return (
                               <View 
                                 key={index + 1}
@@ -306,6 +419,8 @@ export default function HistoryScreen() {
                 </View>
               </View>
             </Modal>
+
+            <BluetoothModal bluetoothModalVisible={bluetoothModalVisible && !isBluetoothConnected} setBluetoothModalVisible={setBluetoothModalVisible}/>
 
             <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingHorizontal: 50, marginBottom: 30}}>
               {data.team_logo !== '' && (

@@ -8,7 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

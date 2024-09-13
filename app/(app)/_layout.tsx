@@ -8,7 +8,8 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useSession, SidebarProvider } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
+import { SidebarProvider } from '@/context/SidebarContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

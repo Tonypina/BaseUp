@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import { router, Link, useLocalSearchParams } from 'expo-router';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import { StatusBar } from 'expo-status-bar';
 import { playerType, initialValuesPlayer } from '@/constants/Types';
 import { MultiSelect } from 'react-native-element-dropdown';
 import useFetch from '@/hooks/useFetch';
 import axios from 'axios';
 import Loading from '@/components/Loading';
+import { designated, flex, substitute } from '@/constants/PositionsNotRequired';
 
 export default function AddPlayer() {
 
@@ -135,6 +136,11 @@ export default function AddPlayer() {
                   return {...prevPlayer, positions: item}
                 })
               }}
+              excludeItems={[
+                substitute,
+                designated,
+                flex
+              ]}
             />
           </>
         )}

@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import useFetch from '@/hooks/useFetch';
 import { MultiSelect } from 'react-native-element-dropdown';
-import { Table, Row, Rows } from 'react-native-table-component';
+import { Table, Row } from 'react-native-table-component';
 import axios from 'axios';
-import { teamType, playerType, initialValuesPlayer, initialValuesTeam, positionType } from '@/constants/Types';
+import { teamType, playerType, initialValuesPlayer, initialValuesTeam } from '@/constants/Types';
+import { designated, flex, substitute } from '@/constants/PositionsNotRequired';
 
 
 export default function CreateTeam() {
@@ -86,6 +87,32 @@ export default function CreateTeam() {
       }}>
         Create a team
       </Text>
+
+      <Text style={{
+        fontSize: 15,
+        marginBottom: 10
+      }}>Team manager</Text>
+      <TextInput
+        style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
+        placeholder="Team manager"
+        value={newTeam.manager}
+        onChangeText={newName => setNewTeam(prevTeam => {
+          return {...prevTeam, manager: newName}
+        })}
+      />
+
+      <Text style={{
+        fontSize: 15,
+        marginBottom: 10
+      }}>Team coach</Text>
+      <TextInput
+        style={{ fontSize: 16, height: 60, borderColor: 'gray', borderWidth: 0.5, borderRadius: 5, marginBottom: 20, paddingHorizontal: 15 }}
+        placeholder="Team coach"
+        value={newTeam.coach}
+        onChangeText={newName => setNewTeam(prevTeam => {
+          return {...prevTeam, coach: newName}
+        })}
+      />
 
       <Text style={{
         fontSize: 15,
@@ -197,6 +224,11 @@ export default function CreateTeam() {
                 return {...prevPlayer, positions: item}
               })
             }}
+            excludeItems={[
+              substitute,
+              designated,
+              flex
+            ]}
           />
         )}
         <TouchableOpacity

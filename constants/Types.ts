@@ -13,20 +13,25 @@ export type playerType = {
 
 export type lineupType = {
   name: string,
-  players: playerType[]
+  opposing_team: string,
+  players: playerType & {is_flex: boolean}[]
 }
 
 export type teamType = {
   id: string,
   name: string,
   logo: string,
+  manager: string,
+  coach: string,
   players: playerType[]
 }
 
 export const initialValuesTeam = {
   name: '',
   logo: '',
-  players: []
+  players: [],
+  manager: '',
+  team: '',
 }
 
 export const initialValuesPlayer = {

@@ -1,7 +1,7 @@
 import { Image, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import useFetch from '@/hooks/useFetch';
 import { router } from 'expo-router';
 import Loading from '@/components/Loading';

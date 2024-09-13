@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { useSession } from '@/context/ctx';
+import { useSession } from '@/context/AuthContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useStorageState } from '@/hooks/useStorageState';
 
