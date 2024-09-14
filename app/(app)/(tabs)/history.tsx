@@ -49,7 +49,7 @@ export default function HistoryScreen() {
       alert(error);
     }
   }
-
+  
   return (
       <ScrollView style={{backgroundColor: 'white', paddingTop: 120}}>
         {isLoading ? (
@@ -300,7 +300,7 @@ export default function HistoryScreen() {
                               <Text style={{fontWeight: 'bold'}}>Position</Text>
                             </View>
                           </View>
-                          {lineup.players.filter(player => player.position !== '11').map((player, index) => {
+                          {lineup.players.filter(player => player.position !== '11' && player.is_flex === "0").map((player, index) => {
                             
                             return (
                               <View 
@@ -313,6 +313,40 @@ export default function HistoryScreen() {
                               >
                                 <View style ={{flex: 1.1, borderRightWidth: 1, paddingHorizontal: 5, alignItems: 'center'}}>
                                   <Text>{index + 1}</Text>
+                                </View>
+                                <View style ={{flex: 1, borderRightWidth: 1, paddingHorizontal: 5, alignItems: 'center'}}>
+                                  <Text>{player.number}</Text>
+                                </View>
+                                <View style ={{flex: 4, borderRightWidth: 1, paddingHorizontal: 5,}}>
+                                  <Text>{player.name}</Text>
+                                </View>
+                                <View style ={{flex: 2, paddingHorizontal: 5, display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                                  <View style={{flex: 2, alignItems: 'flex-end'}}>
+                                    <Text>{`${positions[player.position - 1].acronym}`}</Text>
+                                  </View>
+                                  <View style={{flex: 1}}>
+                                    <Text>{` - `}</Text>
+                                  </View>
+                                  <View style={{flex: 2}}>
+                                    <Text>{`${positions[player.position - 1].id}`}</Text>
+                                  </View>
+                                </View>
+                              </View>
+                            )
+                          })}
+                          {lineup.players.filter(player => player.position !== '11' && player.is_flex === "1").map((player, index) => {
+                            
+                            return (
+                              <View 
+                                key={index + 1}
+                                style={{
+                                  display: 'flex',
+                                  flexDirection: 'row',
+                                  borderBottomWidth: 1
+                                }}
+                              >
+                                <View style ={{flex: 1.1, borderRightWidth: 1, paddingHorizontal: 5, alignItems: 'center'}}>
+                                  <Text>Flex</Text>
                                 </View>
                                 <View style ={{flex: 1, borderRightWidth: 1, paddingHorizontal: 5, alignItems: 'center'}}>
                                   <Text>{player.number}</Text>
@@ -400,7 +434,7 @@ export default function HistoryScreen() {
                             source={baseball_field}
                             style={{ width: 300, height: 300 }}
                           />
-                          {lineup.players.filter(player => player.position !== '11').map((player, index) => { 
+                          {lineup.players.filter(player => player.position !== '11' && player.position !== '12').map((player, index) => { 
                             return <View key={index} style={{
                               position: 'absolute',
                               paddingHorizontal: 5,
@@ -465,7 +499,13 @@ export default function HistoryScreen() {
               </Text>
             </View>
 
-            <View style={{paddingHorizontal: 40, marginBottom: 140}}>
+            <View style={{paddingHorizontal: 40, marginBottom: 20}}>
+              <View style={{display: 'flex'}}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }}>Most recent</Text>
+              </View>
               <View
                 style={{
                   display: 'flex',
@@ -482,7 +522,7 @@ export default function HistoryScreen() {
                       fontSize: 18,
                       fontWeight: 'bold'
                     }}
-                  >Fecha</Text>
+                  >Date</Text>
                 </View>
                 <View style={{
                   flex: 1
@@ -492,50 +532,125 @@ export default function HistoryScreen() {
                       fontSize: 18,
                       fontWeight: 'bold'
                     }}
-                  >Nombre</Text>
+                  >Name</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setLineup(data.lineups.at(0))
+                  setModalVisible(!modalVisible)
+                }}
+              >                    
+                <View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    marginBottom: 10
+                  }}
+                >
+                  <View style={{
+                    flex: 1
+                  }}>
+                    <Text
+                      style={{
+                        fontSize: 16
+                      }}
+                    >{`${data.lineups.at(0).created_at.slice(0, 10)}`}</Text>
+                  </View>
+                  <View style={{
+                    flex: 1
+                  }}>
+                    <Text
+                      style={{
+                        fontSize: 16
+                      }}
+                    >{data.lineups.at(0).name}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={{paddingHorizontal: 40, marginBottom: 140}}>
+              <View style={{display: 'flex'}}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }}>Older</Text>
+              </View>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                }}
+              >
+                <View style={{
+                  flex: 1
+                }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 'bold'
+                    }}
+                  >Date</Text>
+                </View>
+                <View style={{
+                  flex: 1
+                }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 'bold'
+                    }}
+                  >Name</Text>
                 </View>
               </View>
               {data?.lineups.map((lineup, key) => {
-                return (
-                  <TouchableOpacity key={key}
-                    onPress={() => {
-                      setLineup(data.lineups[key])
-                      setModalVisible(!modalVisible)
-                    }}
-                  >                    
-                    <View
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        paddingVertical: 10,
-                        paddingHorizontal: 20,
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        marginBottom: 10
+                if (key) {
+                  return (
+                    <TouchableOpacity key={key}
+                      onPress={() => {
+                        setLineup(data.lineups[key])
+                        setModalVisible(!modalVisible)
                       }}
-                    >
-                      <View style={{
-                        flex: 1
-                      }}>
-                        <Text
-                          style={{
-                            fontSize: 16
-                          }}
-                        >{`${lineup.created_at.slice(0, 10)}`}</Text>
+                    >                    
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          paddingVertical: 10,
+                          paddingHorizontal: 20,
+                          borderWidth: 1,
+                          borderRadius: 5,
+                          marginBottom: 10
+                        }}
+                      >
+                        <View style={{
+                          flex: 1
+                        }}>
+                          <Text
+                            style={{
+                              fontSize: 16
+                            }}
+                          >{`${lineup.created_at.slice(0, 10)}`}</Text>
+                        </View>
+                        <View style={{
+                          flex: 1
+                        }}>
+                          <Text
+                            style={{
+                              fontSize: 16
+                            }}
+                          >{lineup.name}</Text>
+                        </View>
                       </View>
-                      <View style={{
-                        flex: 1
-                      }}>
-                        <Text
-                          style={{
-                            fontSize: 16
-                          }}
-                        >{lineup.name}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )
-
+                    </TouchableOpacity>
+                  )
+                }
               })}
             </View>
           </>

@@ -150,7 +150,7 @@ export default function LineUpScreen() {
                       height: 60,
                       width: '100%',
                     }}
-                    data={isChecked ? [...selectedPlayer.positions, substitute, designated] : [...selectedPlayer.positions, substitute]}
+                    data={[...selectedPlayer.positions, substitute, designated]}
                     search
                     labelField="description"
                     valueField="acronym"
@@ -218,6 +218,10 @@ export default function LineUpScreen() {
                         ]
                       })
 
+                      if (isChecked) {
+                        setIsChecked(false);
+                      }
+
                       setSelectedPlayer(initialValuesPlayer)
 
                       if (selectedPosition?.id !== 11) {
@@ -226,6 +230,7 @@ export default function LineUpScreen() {
                           selectedPosition
                         ])
                       }
+                      
                     }}
                   >
                     <Text
@@ -435,13 +440,54 @@ export default function LineUpScreen() {
               </View>
               
               <View style={{marginBottom: 50}}>
-                {lineup.players.filter(player => player.positions[0].id !== 11).map((player, index) => {
+                {lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).map((player, index) => {
                   return <View key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
                     <View style={{flex: 1, alignItems: 'center'}}>
                       <Text style={{
                         fontSize: 17,
                       }}>
                         {index + 1}
+                      </Text>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text style={{
+                        fontSize: 17,
+                      }}>
+                        {player.number}
+                      </Text>
+                    </View>
+                    <View style={{flex: 3, paddingLeft: 10}}>
+                      <Text style={{
+                        fontSize: 17,
+                      }}>
+                        {player.name}
+                      </Text>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                        <Text style={{
+                          flex: 1,
+                          fontSize: 17,
+                        }}>
+                          {`${player.positions[0].acronym}`}
+                        </Text>
+                        <Text style={{
+                          flex: 1,
+                          fontSize: 17,
+                        }}>
+                          {`-  ${player.positions[0].id}`}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                })}
+                {lineup.players.filter(player => player.positions[0].id !== 11 && player.is_flex).map((player, index) => {
+                  return <View key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                      <Text style={{
+                        fontSize: 17,
+                      }}>
+                        Flex
                       </Text>
                     </View>
                     <View style={{flex: 1, alignItems: 'center'}}>
@@ -579,6 +625,16 @@ export default function LineUpScreen() {
                       width: '100%'
                     }}
                     onPress={async () => {
+
+                      if (lineup.players.find(p => p.positions[0].id === 12 && !lineup.players.find(p => p.is_flex === true))) {
+                        alert("For each Designated Player there has to be a Flex Player.");
+                        return;
+                      }
+                      
+                      if (!lineup.players.find(p => p.positions[0].id === 12 && lineup.players.find(p => p.is_flex === true))) {
+                        alert("For each Flex Player there has to be a Designated Player.");
+                        return;
+                      }
 
                       let res = await axios({
                         method: 'post',
