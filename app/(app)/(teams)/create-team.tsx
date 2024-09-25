@@ -19,6 +19,18 @@ export default function CreateTeam() {
   const [newTeam, setNewTeam] = useState<teamType>(initialValuesTeam)
   const [newPlayer, setNewPlayer] = useState<playerType>(initialValuesPlayer)
 
+  const [formErrors, setFormErrors] = useState({
+    name: null,
+    coach: null,
+    logo: null,
+    manager: null,
+    players: {
+      name: null,
+      number: null,
+      positions: null
+    }
+  });
+
   const handleSubmit = async () => {
     try {
 
@@ -38,7 +50,12 @@ export default function CreateTeam() {
       }
       
     } catch (error) {
-      console.log(error);
+      let err_str = '';
+      Object.values(error.response.data.errors).forEach(error => err_str += error + '\n');
+      
+      setFormErrors(error.response.data.errors)
+
+      alert(err_str);
     }
   };
 
@@ -68,7 +85,7 @@ export default function CreateTeam() {
       }
 
     } catch (error) {
-      console.log('Error: ', error);      
+      alert('Error: ' + error);      
     }
   } 
 
@@ -99,7 +116,14 @@ export default function CreateTeam() {
         onChangeText={newName => setNewTeam(prevTeam => {
           return {...prevTeam, manager: newName}
         })}
-      />
+        />
+      {formErrors.manager && (
+        <Text style ={{
+          fontSize: 12,
+          marginBottom: 10,
+          color: 'red'
+        }}>{formErrors.manager[0]}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -113,6 +137,13 @@ export default function CreateTeam() {
           return {...prevTeam, coach: newName}
         })}
       />
+      {formErrors.coach && (
+        <Text style ={{
+          fontSize: 12,
+          marginBottom: 10,
+          color: 'red'
+        }}>{formErrors.coach[0]}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -126,6 +157,13 @@ export default function CreateTeam() {
           return {...prevTeam, name: newName}
         })}
       />
+      {formErrors.name && (
+        <Text style ={{
+          fontSize: 12,
+          marginBottom: 10,
+          color: 'red'
+        }}>{formErrors.name[0]}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -158,6 +196,13 @@ export default function CreateTeam() {
             style={{ width: 200, height: 200 }}
           />
         </View>
+      )}
+      {formErrors.logo && (
+        <Text style ={{
+          fontSize: 12,
+          marginBottom: 10,
+          color: 'red'
+        }}>{formErrors.logo[0]}</Text>
       )}
 
       <View style={{marginTop: 40}}>
@@ -241,6 +286,12 @@ export default function CreateTeam() {
             marginTop: 40
           }}
           onPress={() => {
+
+            if (newPlayer.name === '' || newPlayer.number === '' || newPlayer.positions.length === 0) {
+              alert('All the fields in Player are required.');
+              return;
+            }
+
             setNewTeam(prevTeam => {
               return {
                 ...prevTeam,
@@ -310,6 +361,13 @@ export default function CreateTeam() {
                   })
                 }
               </Table>
+        {formErrors.players && (
+          <Text style ={{
+            fontSize: 12,
+            marginBottom: 10,
+            color: 'red'
+          }}>{formErrors.players[0]}</Text>
+        )}
       </View>
 
       <TouchableOpacity

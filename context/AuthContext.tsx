@@ -1,22 +1,26 @@
-import { useContext, createContext, type PropsWithChildren } from 'react';
+import { useContext, createContext, type PropsWithChildren, useEffect } from 'react';
 import { useStorageState } from '../hooks/useStorageState';
 import axios from 'axios';
+import * as Linking from 'expo-linking'; // Para manejar el deep linking
 
 const AuthContext = createContext<{
-  signIn: (email: string, pass: string) => Promise<boolean>;
+  signIn: (email: string, pass: string) => Promise<{success: boolean, message: string}>;
   signOut: (token: string) => void;
-  register: (name: string, email: string, pass: string, c_pass: string) => Promise<boolean>;
+  register: (name: string, email: string, pass: string, c_pass: string) => Promise<{success: boolean, message: string}>;
+  deleteAccount: (token: string) => Promise<void>;
+  updateAccount: (name: string, email: string, token: string) => Promise<boolean>;
   session?: any | null;
   isLoading: boolean;
 }>({
-  signIn: async () => false,
+  signIn: async () => ({success: false, message: ""}),
   signOut: () => null,
-  register: async () => false,
+  register: async () => ({success: false, message: ""}),
+  deleteAccount: async () => {},
+  updateAccount: async () => false,
   session: null,
   isLoading: false,
 });
 
-// This hook can be used to access the user info.
 export function useSession() {
   const value = useContext(AuthContext);
   if (process.env.NODE_ENV !== 'production') {
@@ -31,51 +35,72 @@ export function useSession() {
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState('session');
 
-  // const [isAuthenticated, setIsAutheticated] = useState(false);
-  let isAuthenticated = false
+  let isAuthenticated = false;
+  let message = "";
 
+  // Manejar el deep link para obtener el token
+  const handleRedirect = async (event: { url: string }) => {
+    const url = event.url;
+    const token = new URLSearchParams(url.split('?')[1]).get('token');
+    
+    if (token) {
+      // Guardamos el token en el estado de sesión
+      setSession(JSON.stringify({ token }));
+      isAuthenticated = true;
+    }
+  };
+
+  // Usamos useEffect para escuchar los eventos de deep link
+  useEffect(() => {
+    // Agregar listener para manejar el deep link
+    const subscription = Linking.addEventListener('url', handleRedirect);
+
+    // Eliminar el listener cuando el componente se desmonte
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         signIn: async (email, pass) => {
-
           await axios({
             method: 'post',
             url: process.env.EXPO_PUBLIC_API_URL + 'login',
             data: {
               email: email,
               password: pass,
-            }
-          }).then(async res => {
-                       
-            setSession(JSON.stringify(res.data.data));
-            isAuthenticated = true
-            
-          }).catch(async err => {
-            
-            setSession(null);
-            isAuthenticated = false
+            },
           })
+            .then(async (res) => {
+              setSession(JSON.stringify(res.data.data));
+              isAuthenticated = true;
+              message = res.data.message
+            })
+            .catch(async (err) => {
+              
+              setSession(null);
+              isAuthenticated = false;
+              message = err.response.data.message;
+            });
+            
+            return {success: isAuthenticated, message: message};
+          },
 
-          return isAuthenticated
-          
-        },
-        
-        signOut: async ( token ) => {
+        signOut: async (token) => {
           await axios({
             method: 'post',
             url: process.env.EXPO_PUBLIC_API_URL + 'logout',
             headers: {
-              Authorization: 'Bearer ' + token
-            }
-          })
-          
+              Authorization: 'Bearer ' + token,
+            },
+          });
+
           setSession(null);
         },
 
         register: async (name, email, pass, c_pass) => {
-          
           await axios({
             method: 'post',
             url: process.env.EXPO_PUBLIC_API_URL + 'register',
@@ -84,24 +109,77 @@ export function SessionProvider({ children }: PropsWithChildren) {
               email: email,
               password: pass,
               c_password: c_pass,
-            }
-          }).then(async res => {
-            
-            setSession(JSON.stringify(res.data.data));
-            isAuthenticated = true
-
-          }).catch(async err => {
-            
-            setSession(null);
-            isAuthenticated = false            
+            },
           })
-          
-          return isAuthenticated
+            .then(async (res) => {
+              setSession(JSON.stringify(res.data.data));
+              isAuthenticated = true;
+              message = res.data.message
+            })
+            .catch(async (err) => {
+              setSession(null);
+              isAuthenticated = false;
+              message = err.response.data.message;
+            });
+
+            return {success: isAuthenticated, message: message};
+
+        },
+
+        deleteAccount: async (token) => {
+          await axios({
+            method: 'delete',
+            url: process.env.EXPO_PUBLIC_API_URL + 'user',
+            headers: {
+              Authorization: 'Bearer ' + token,
+            },
+          })
+            .then(() => {
+              setSession(null); // Eliminar la sesión del usuario localmente después de eliminar la cuenta
+            })
+            .catch((err) => {
+              console.error('Error eliminando la cuenta:', err);
+            });
+        },
+
+        updateAccount: async (name, email, token) => {
+          try {
+            const response = await axios.put(
+              process.env.EXPO_PUBLIC_API_URL + 'user',
+              { name, email },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (response.status === 200) {
+              const updatedUser = response.data;              
+
+              // Actualiza los datos del usuario en la sesión
+              const updatedSession = {
+                ...JSON.parse(session),
+                name: updatedUser.user.name,
+                email: updatedUser.user.email,
+              };
+
+              setSession(JSON.stringify(updatedSession));
+
+              return true;
+            }
+
+            return false;
+          } catch (error) {
+            console.error('Error updating account:', error);
+            return false;
+          }
         },
 
         session,
         isLoading,
-      }}>
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

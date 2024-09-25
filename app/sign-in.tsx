@@ -3,7 +3,8 @@ import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSession } from '@/context/AuthContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useStorageState } from '@/hooks/useStorageState';
+import * as Linking from 'expo-linking';
+import { Colors } from '@/constants/Colors';
 
 export default function SignIn() {
   const { signIn } = useSession();
@@ -13,27 +14,36 @@ export default function SignIn() {
 
   const handleSignIn = async () => {
     try {
-      let isAuthenticated = await signIn( username, password )
+      let response = await signIn( username, password )
       
-      if (isAuthenticated) {
+      if (response.success) {
 
         router.replace('/');
 
         setError('');
-      } else {
-
-        setError('Wrong credentials. Try again.');
+        alert(response.message);
+      } else {  
+        setError(response.message);
       }
       
     } catch (error) {
       
-      setError('Wrong credentials. Try again.');
+      setError('Something went wrong. Try again.');
     }
   };
   
   const handleGoogleSignIn = async () => {
-    
-  }
+    try {
+      // URL de tu API que inicia el proceso de Google OAuth
+      const googleAuthUrl = `${process.env.EXPO_PUBLIC_API_URL}oauth/google`;
+  
+      // Redirigir al usuario a la página de Google OAuth
+      await Linking.openURL(googleAuthUrl);
+    } catch (error) {
+      console.error('Error al redirigir a Google OAuth:', error);
+      Alert.alert('Error', 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
+    }
+  };
   
   const handleRegister = () => {
     
@@ -45,6 +55,7 @@ export default function SignIn() {
       <Text style={{
         fontSize: 60,
         marginBottom: 10,
+        color: Colors.blue
       }}>
         Sign In
       </Text>
@@ -90,7 +101,7 @@ export default function SignIn() {
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{
-            backgroundColor: '#111111',
+            backgroundColor: Colors.blue,
             borderRadius: 5,
             paddingVertical: 10,
             alignItems: 'center',
@@ -139,16 +150,16 @@ export default function SignIn() {
           paddingVertical: 12, 
           paddingHorizontal: 32, 
           borderRadius: 5, 
-          borderColor: '#111111',
+          borderColor: Colors.red,
           borderWidth: 2, 
           width: '100%',
           alignItems: 'center',
           justifyContent: 'center'
         }} 
-        // onPress={handleGoogleSignIn}
+        onPress={handleGoogleSignIn}
       >
-        <Ionicons size={20} style={{marginEnd: 8}} name='logo-google' />
-        <Text style={{ color: 'black', fontSize: 16 }}>
+        <Ionicons size={20} style={{marginEnd: 8, color: Colors.red}} name='logo-google' />
+        <Text style={{ color: Colors.red, fontSize: 16 }}>
           Sign In with Google
         </Text>
       </TouchableOpacity>

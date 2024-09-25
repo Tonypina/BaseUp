@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSession } from '@/context/AuthContext';
+import { Colors } from '@/constants/Colors';
 
 export default function Register() {
   const { register } = useSession();
@@ -39,6 +40,7 @@ export default function Register() {
       <Text style={{
         fontSize: 60,
         marginBottom: 10,
+        color: Colors.blue
       }}>
         Register
       </Text>
@@ -107,7 +109,7 @@ export default function Register() {
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{
-            backgroundColor: '#111111',
+            backgroundColor: Colors.blue,
             borderRadius: 5,
             paddingVertical: 10,
             alignItems: 'center',

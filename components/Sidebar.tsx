@@ -93,7 +93,10 @@ const Sidebar: React.FC = () => {
                 <View style={{marginRight: 10}}>
                   <Ionicons style={{color: Colors.light.text}} size={25} name='settings-outline' />
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  router.replace('settings-menu');
+                  toggleSidebar();
+                }}>
                   <Text style={{
                     fontSize: 18, 
                     color: Colors.light.text

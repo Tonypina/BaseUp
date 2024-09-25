@@ -10,6 +10,7 @@ import axios from 'axios';
 import { Colors } from '@/constants/Colors';
 import { substitute, designated, flex } from '@/constants/PositionsNotRequired';
 import Checkbox from 'expo-checkbox';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LineUpScreen() {
   const { session } = useSession();
@@ -30,6 +31,22 @@ export default function LineUpScreen() {
   const [ isChecked, setIsChecked ] = useState<boolean>(false)
 
   let baseball_field = require('@/assets/images/baseball_field.png')  
+
+  const swapPlayers = (index1, index2) => {
+    const newPlayers = [...lineup.players];
+    
+    // Asegurarse de que los índices sean válidos
+    if (index1 >= 0 && index2 >= 0 && index1 < newPlayers.length && index2 < newPlayers.length) {
+      // Intercambiar jugadores en los dos índices
+      [newPlayers[index1], newPlayers[index2]] = [newPlayers[index2], newPlayers[index1]];
+      
+      // Actualizar el estado con la nueva lista de jugadores
+      setLineup((prevLineup) => ({
+        ...prevLineup,
+        players: newPlayers
+      }));
+    }
+  };
 
   return (
       <ScrollView style={{backgroundColor: 'white', paddingTop: 120}}>
@@ -181,7 +198,7 @@ export default function LineUpScreen() {
               </View>
               
               <View style={{flex: 1, marginBottom: 50}}>
-                {lineup.players.length >= 15 ? (
+                {lineup.players.length >= 20 ? (
                   <Text
                     style={{
                       color: 'white',
@@ -410,7 +427,7 @@ export default function LineUpScreen() {
                     fontSize: 18,
                     fontWeight: 'bold',
                   }}>
-                    Order
+                    Ord.
                   </Text>
                 </View>
                 <View style={{flex: 1, alignItems: 'center'}}>
@@ -421,7 +438,7 @@ export default function LineUpScreen() {
                     No.
                   </Text>
                 </View>
-                <View style={{flex: 3, paddingLeft: 10}}>
+                <View style={{flex: 2, paddingLeft: 10}}>
                   <Text style={{
                     fontSize: 18,
                     fontWeight: 'bold',
@@ -429,42 +446,52 @@ export default function LineUpScreen() {
                     Name
                   </Text>
                 </View>
-                <View style={{flex: 1, alignItems: 'center'}}>
-                  <Text style={{
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                  }}>
-                    Pos.
-                  </Text>
+                <View style={{flex: 3, alignItems: 'center', display: 'flex', flexDirection: 'row'}}>
+                  <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
+                    <Text style={{
+                      fontSize: 18,
+                      fontWeight: 'bold',
+                    }}>
+                      Pos.
+                    </Text>
+                  </View>
+                  <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
+                    <Text style={{
+                      fontSize: 18,
+                      fontWeight: 'bold',
+                    }}>
+                      Act.
+                    </Text>
+                  </View>
                 </View>
               </View>
               
               <View style={{marginBottom: 50}}>
                 {lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).map((player, index) => {
                   return <View key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
-                    <View style={{flex: 1, alignItems: 'center'}}>
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={{
                         fontSize: 17,
                       }}>
                         {index + 1}
                       </Text>
                     </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={{
                         fontSize: 17,
                       }}>
                         {player.number}
                       </Text>
                     </View>
-                    <View style={{flex: 3, paddingLeft: 10}}>
+                    <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center',}}>
                       <Text style={{
                         fontSize: 17,
                       }}>
                         {player.name}
                       </Text>
                     </View>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                      <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                    <View style={{flex: 3, justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'row'}}>
+                      <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                         <Text style={{
                           flex: 1,
                           fontSize: 17,
@@ -477,6 +504,22 @@ export default function LineUpScreen() {
                         }}>
                           {`-  ${player.positions[0].id}`}
                         </Text>
+                      </View>
+                      <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                        {index !== 0 ? (
+                          <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index - 1).id))}>
+                            <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-up-outline' />
+                          </TouchableOpacity>
+                        ) : (
+                          <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-up-outline' />
+                        )}
+                        {index < lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).length - 1 ? (
+                          <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index + 1).id))}>
+                            <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-down-outline' />
+                          </TouchableOpacity>
+                        ) : (
+                          <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-down-outline' />
+                        )}
                       </View>
                     </View>
                   </View>
@@ -626,12 +669,12 @@ export default function LineUpScreen() {
                     }}
                     onPress={async () => {
 
-                      if (lineup.players.find(p => p.positions[0].id === 12 && !lineup.players.find(p => p.is_flex === true))) {
+                      if (lineup.players.find(p => p.positions[0].id === 12) && !lineup.players.find(p => p.is_flex === true)) {
                         alert("For each Designated Player there has to be a Flex Player.");
                         return;
                       }
                       
-                      if (!lineup.players.find(p => p.positions[0].id === 12 && lineup.players.find(p => p.is_flex === true))) {
+                      if (!lineup.players.find(p => p.positions[0].id === 12) && lineup.players.find(p => p.is_flex === true)) {
                         alert("For each Flex Player there has to be a Designated Player.");
                         return;
                       }
@@ -643,14 +686,15 @@ export default function LineUpScreen() {
                           Authorization: 'Bearer ' + JSON.parse(session).token
                         },
                         data: lineup
-                      }).catch(e => console.log(e))
+                      }).catch(e => alert(e.response.data))
 
                       if (res.status === 201) {
 
+                        alert("Inserted successfully")
                         router.replace('/lineup')
 
                       } else {
-                        console.log('No se insertó');
+                        console.log('Couldn\'t insert.');
                       }
 
                     }}

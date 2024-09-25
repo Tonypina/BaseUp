@@ -1,25 +1,24 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
-import Sidebar from '@/components/Sidebar';
-import Header from '@/components/Header';
+import { View, TouchableOpacity } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSession } from '@/context/AuthContext';
-import { SidebarProvider } from '@/context/SidebarContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function AppLayout() {
+export default function SettingsLayout() {
   const { session, isLoading } = useSession();
 
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require('../../../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
@@ -42,19 +41,23 @@ export default function AppLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SidebarProvider>
-        <Header/>
-        <Sidebar/>
-        <Stack
-          screenOptions={{gestureEnabled: false}}
-        >
-          <Stack.Screen name="index" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="(teams)" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="(settings)" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="not-found" />
-        </Stack>
-      </SidebarProvider>
+      <View style={{
+          paddingVertical: 40,
+          paddingLeft: 20,
+          backgroundColor: 'white'
+      }}>
+          <TouchableOpacity
+          onPress={() => router.back()}
+          >
+          <Ionicons size={30} name='chevron-back-outline' />
+          </TouchableOpacity>
+      </View>
+      <Stack>
+        <Stack.Screen name="settings-menu" options={{ headerShown: false }} />
+        <Stack.Screen name="account" options={{ headerShown: false }} />
+        <Stack.Screen name="language" options={{ headerShown: false }} />
+        <Stack.Screen name="about" options={{ headerShown: false }} />
+      </Stack>
     </ThemeProvider>
   );
 }
