@@ -10,24 +10,25 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [c_password, setCPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
 
   const handleRegister = async () => {
     try {
-      let isAuthenticated = await register( name, email, password, c_password );
+      let response = await register( name, email, password, c_password );
 
-      if (isAuthenticated) {
+      if (response.success) {
 
-        router.replace('/');
+        alert("An email verification was sent. Please verify your email.");
+        router.replace('/sign-in');
         
       } else {
         
-        setError('A problem ocurred. Try again.');
+        setErrors(response.message);
       }
       
     } catch (error) {
       
-      setError('A problem ocurred. Try again.');
+      alert('An error ocurred. Try again later.');
     }
   };
   
@@ -62,6 +63,14 @@ export default function Register() {
         value={name}
         onChangeText={setName}
       />
+      {errors.name && (
+        <Text 
+          style={{
+            color: 'red',
+            fontSize: 15
+          }}
+        >{errors.name}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -73,6 +82,14 @@ export default function Register() {
         value={email}
         onChangeText={setEmail}
       />
+      {errors.email && (
+        <Text 
+          style={{
+            color: 'red',
+            fontSize: 15
+          }}
+        >{errors.email}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -85,6 +102,14 @@ export default function Register() {
         onChangeText={setPassword}
         secureTextEntry
       />
+      {errors.password && (
+        <Text 
+          style={{
+            color: 'red',
+            fontSize: 15
+          }}
+        >{errors.password}</Text>
+      )}
 
       <Text style={{
         fontSize: 15,
@@ -97,15 +122,15 @@ export default function Register() {
         onChangeText={setCPassword}
         secureTextEntry
       />
-      {error && (
+      {errors.c_password && (
         <Text 
           style={{
             color: 'red',
             fontSize: 15
           }}
-        >{error}</Text>
+        >{errors.c_password}</Text>
       )}
-
+      
       <View style={{alignItems: 'center', marginTop: 30}}>
         <TouchableOpacity
           style={{

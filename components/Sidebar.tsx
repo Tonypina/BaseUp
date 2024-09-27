@@ -30,7 +30,7 @@ const Sidebar: React.FC = () => {
           display: 'flex',
           right: 0,
           bottom: 0,
-          height: '89.3%',
+          height: '86.3%',
           width: '60%',
           backgroundColor: '#F0F0F0',
           zIndex: 3,

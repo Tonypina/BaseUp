@@ -4,7 +4,7 @@
     "slug": "BaseUp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/baseup_icon.png",
     "scheme": "baseup",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -21,7 +21,7 @@
         "android.permission.BLUETOOTH_SCAN"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/baseup_icon_2.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.baseup"

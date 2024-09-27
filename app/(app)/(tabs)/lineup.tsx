@@ -1,8 +1,8 @@
-import { Image, ScrollView, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, View, Text, TextInput, TouchableOpacity, Alert, Touchable } from 'react-native';
 import { useSession } from '@/context/AuthContext';
 import { router, useLocalSearchParams } from 'expo-router';
 import useFetch from '@/hooks/useFetch';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import { initialValuesPlayer, playerType, positionType, lineupType } from '@/constants/Types';
 import { Dropdown } from 'react-native-element-dropdown';
 import Loading from '@/components/Loading';
@@ -47,6 +47,8 @@ export default function LineUpScreen() {
       }));
     }
   };
+
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
 
   return (
       <ScrollView style={{backgroundColor: 'white', paddingTop: 120}}>
@@ -223,7 +225,6 @@ export default function LineUpScreen() {
                       width: '100%'
                     }}
                     onPress={() => {
-                      
                       setLineup({
                         ...lineup,
                         players: [
@@ -242,10 +243,7 @@ export default function LineUpScreen() {
                       setSelectedPlayer(initialValuesPlayer)
 
                       if (selectedPosition?.id !== 11) {
-                        setUsedPositions(prevPositions => [
-                          ...prevPositions,
-                          selectedPosition
-                        ])
+                        usedPositions.push(selectedPosition)
                       }
                       
                     }}
@@ -446,52 +444,65 @@ export default function LineUpScreen() {
                     Name
                   </Text>
                 </View>
-                <View style={{flex: 3, alignItems: 'center', display: 'flex', flexDirection: 'row'}}>
-                  <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
-                    <Text style={{
-                      fontSize: 18,
-                      fontWeight: 'bold',
-                    }}>
-                      Pos.
-                    </Text>
-                  </View>
-                  <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
-                    <Text style={{
-                      fontSize: 18,
-                      fontWeight: 'bold',
-                    }}>
-                      Act.
-                    </Text>
-                  </View>
+                <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                  }}>
+                    Pos.
+                  </Text>
+                </View>
+                <View style={{flex: 2, display: 'flex', alignItems: 'center',}}>
+                  <Text style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                  }}>
+                    Act.
+                  </Text>
                 </View>
               </View>
               
               <View style={{marginBottom: 50}}>
                 {lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).map((player, index) => {
                   return <View key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={{
-                        fontSize: 17,
-                      }}>
-                        {index + 1}
-                      </Text>
-                    </View>
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                      <Text style={{
-                        fontSize: 17,
-                      }}>
-                        {player.number}
-                      </Text>
-                    </View>
-                    <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center',}}>
-                      <Text style={{
-                        fontSize: 17,
-                      }}>
-                        {player.name}
-                      </Text>
-                    </View>
-                    <View style={{flex: 3, justifyContent: 'center', alignItems: 'center', display: 'flex', flexDirection: 'row'}}>
-                      <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                    <TouchableOpacity onPress={() => {
+                      Alert.alert('Deleting Player', 'Are you sure to delete the selected player?', [
+                        {
+                          text: 'Cancel',
+                          onPress: () => {},
+                          style: 'cancel',
+                        },
+                        {text: 'Yes', onPress: () => {
+                          let indexToDelete = lineup.players.findIndex(pl => pl.id === player.id);
+                          lineup.players.splice(indexToDelete, 1);
+                          indexToDelete = usedPositions.findIndex(pl => pl.id === player.positions[0].id);
+                          usedPositions.splice(indexToDelete, 1);
+                          forceUpdate();
+                        }},
+                      ]);
+                    }} style={{flex: 6, display: 'flex', flexDirection: 'row'}}>
+                      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text style={{
+                          fontSize: 17,
+                        }}>
+                          {index + 1}
+                        </Text>
+                      </View>
+                      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text style={{
+                          fontSize: 17,
+                        }}>
+                          {player.number}
+                        </Text>
+                      </View>
+                      <View style={{flex: 2, paddingLeft: 10, justifyContent: 'center',}}>
+                        <Text style={{
+                          fontSize: 17,
+                        }}>
+                          {player.name}
+                        </Text>
+                      </View>
+                      <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                         <Text style={{
                           flex: 1,
                           fontSize: 17,
@@ -505,22 +516,22 @@ export default function LineUpScreen() {
                           {`-  ${player.positions[0].id}`}
                         </Text>
                       </View>
-                      <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                        {index !== 0 ? (
-                          <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index - 1).id))}>
-                            <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-up-outline' />
-                          </TouchableOpacity>
-                        ) : (
-                          <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-up-outline' />
-                        )}
-                        {index < lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).length - 1 ? (
-                          <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index + 1).id))}>
-                            <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-down-outline' />
-                          </TouchableOpacity>
-                        ) : (
-                          <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-down-outline' />
-                        )}
-                      </View>
+                    </TouchableOpacity>
+                    <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                      {index !== 0 ? (
+                        <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index - 1).id))}>
+                          <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-up-outline' />
+                        </TouchableOpacity>
+                      ) : (
+                        <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-up-outline' />
+                      )}
+                      {index < lineup.players.filter(player => player.positions[0].id !== 11 && !player.is_flex).length - 1 ? (
+                        <TouchableOpacity onPress={() => swapPlayers(lineup.players.findIndex(pl => pl.id === player.id), lineup.players.findIndex(pl => pl.id === lineup.players.filter(p => p.positions[0].id !== 11 && !p.is_flex).at(index + 1).id))}>
+                          <Ionicons style={{color: Colors.light.text}} size={25} name='chevron-down-outline' />
+                        </TouchableOpacity>
+                      ) : (
+                        <Ionicons style={{color: Colors.light_gray}} size={25} name='chevron-down-outline' />
+                      )}
                     </View>
                   </View>
                 })}
@@ -616,7 +627,20 @@ export default function LineUpScreen() {
               
               <View style={{marginBottom: 50}}>
                 {lineup.players.filter(player => player.positions[0].id === 11).map((player, index) => {
-                  return <View key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
+                  return <TouchableOpacity onPress={() => {
+                    Alert.alert('Deleting Player', 'Are you sure to delete the selected player?', [
+                      {
+                        text: 'Cancel',
+                        onPress: () => {},
+                        style: 'cancel',
+                      },
+                      {text: 'Yes', onPress: () => {
+                        let indexToDelete = lineup.players.findIndex(pl => pl.id === player.id);
+                        lineup.players.splice(indexToDelete, 1);
+                        forceUpdate();
+                      }},
+                    ]);
+                  }} key={index} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10}}>
                     <View style={{flex: 1, alignItems: 'center'}}>
                       <Text style={{
                         fontSize: 17,
@@ -638,7 +662,7 @@ export default function LineUpScreen() {
                         {player.name}
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 })}
               </View>
 

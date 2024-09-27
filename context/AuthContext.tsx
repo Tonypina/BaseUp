@@ -6,7 +6,7 @@ import * as Linking from 'expo-linking'; // Para manejar el deep linking
 const AuthContext = createContext<{
   signIn: (email: string, pass: string) => Promise<{success: boolean, message: string}>;
   signOut: (token: string) => void;
-  register: (name: string, email: string, pass: string, c_pass: string) => Promise<{success: boolean, message: string}>;
+  register: (name: string, email: string, pass: string, c_pass: string) => Promise<{success: boolean, message: {}}>;
   deleteAccount: (token: string) => Promise<void>;
   updateAccount: (name: string, email: string, token: string) => Promise<boolean>;
   session?: any | null;
@@ -14,7 +14,7 @@ const AuthContext = createContext<{
 }>({
   signIn: async () => ({success: false, message: ""}),
   signOut: () => null,
-  register: async () => ({success: false, message: ""}),
+  register: async () => ({success: false, message: {}}),
   deleteAccount: async () => {},
   updateAccount: async () => false,
   session: null,
@@ -49,17 +49,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
       isAuthenticated = true;
     }
   };
-
-  // Usamos useEffect para escuchar los eventos de deep link
-  useEffect(() => {
-    // Agregar listener para manejar el deep link
-    const subscription = Linking.addEventListener('url', handleRedirect);
-
-    // Eliminar el listener cuando el componente se desmonte
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   return (
     <AuthContext.Provider
@@ -101,6 +90,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
         },
 
         register: async (name, email, pass, c_pass) => {
+          let message_object = {
+            name: "",
+            email: "",
+            password: "",
+            c_password: "",
+            message: ""
+          };
+
           await axios({
             method: 'post',
             url: process.env.EXPO_PUBLIC_API_URL + 'register',
@@ -114,15 +111,18 @@ export function SessionProvider({ children }: PropsWithChildren) {
             .then(async (res) => {
               setSession(JSON.stringify(res.data.data));
               isAuthenticated = true;
-              message = res.data.message
+              message_object.message = res.data.message;
             })
             .catch(async (err) => {
               setSession(null);
               isAuthenticated = false;
-              message = err.response.data.message;
+              
+              Object.keys(err.response.data.data).forEach(key => {
+                message_object[key] = err.response.data.data[key][0];
+              })
             });
 
-            return {success: isAuthenticated, message: message};
+            return {success: isAuthenticated, message: message_object};
 
         },
 

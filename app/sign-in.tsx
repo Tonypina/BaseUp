@@ -41,7 +41,7 @@ export default function SignIn() {
       await Linking.openURL(googleAuthUrl);
     } catch (error) {
       console.error('Error al redirigir a Google OAuth:', error);
-      Alert.alert('Error', 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
+      Alert.alert('Error', 'Couldn\'t sign in. Try again later.');
     }
   };
   
